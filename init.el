@@ -146,6 +146,10 @@
    "t" '(:ignore t :which-key "toggles")
    "tt" '(counsel-load-theme :which-key "choose theme")))
 
+(gedeon/leader-keys
+  "f" '(:ignore t :which-key "file")
+  "fs" '(save-buffer :which-key "save file"))
+
 
 (defun gedeon/evil-hook ()
   (dolist (mode '(custom-mode
@@ -216,5 +220,17 @@
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
-(use-package evil-magit
-  :after magit)
+;; evil-magit is now part of evil-collection
+
+(gedeon/leader-keys
+  "g" '(:ignore t :which-key "git"))
+
+(gedeon/leader-keys
+  "gg" '(magit-status :which-key "magit status"))
+
+
+(use-package org
+  :hook (org-mode . efs/org-mode-setup)
+  :config
+  (setq org-ellipsis " ▾")
+  (efs/org-font-setup))
