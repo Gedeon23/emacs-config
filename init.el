@@ -5,7 +5,7 @@
 (scroll-bar-mode -1)  ; Disable visible scrollbar
 (tool-bar-mode -1)    ; Disable the toolbar
 (tooltip-mode -1)     ; Disable tooltips
-(set-fringe-mode 10)  ; Give some breathing room
+;; (set-fringe-mode 10)  ; Give some breathing room
 
 (menu-bar-mode -1)    ; Disable menu bar
 
@@ -72,6 +72,11 @@
   :config
   (ivy-mode 1))
 
+;; (global-set-key (kbd "C-M-j") 'counsel-switch-buffer)
+
+;; EXAMPLE FOR MODE MAPPINGS
+;; (define-key emacs-lisp-mode-map (kbd "C-x M-t") 'counsel-load-theme)
+
 
 ;; NOTE: The first time you load your configuration on a new machine, you'll
 ;; need to run the following command interactively so that mode line icons
@@ -85,9 +90,10 @@
 (use-package doom-modeline
   :ensure t
   :init (doom-modeline-mode 1)
-  :custom ((doom-modeline-height 30)))
+  :custom ((doom-modeline-height 50)))
 
-(use-package doom-themes)
+(use-package doom-themes
+  :init (load-theme 'doom-tokyo-night t))
 
 
 (use-package rainbow-delimiters
@@ -122,18 +128,47 @@
   ([remap describe-command] . helpful-command)
   ([remap describe-key] . helpful-key))
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   '("7ea883b13485f175d3075c72fceab701b5bf76b2076f024da50dff4107d0db25" "467dc6fdebcf92f4d3e2a2016145ba15841987c71fbe675dcfe34ac47ffb9195" "7e068da4ba88162324d9773ec066d93c447c76e9f4ae711ddd0c5d3863489c52" default))
- '(package-selected-packages
-   '(all-the-icons doom-themes helpful which-key use-package rainbow-delimiters ivy-rich doom-modeline counsel command-log-mode)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+
+(use-package general
+  :config
+  (general-create-definer gedeon/leader-keys
+    :keymaps '(normal insert visual emacs)
+    :prefix "SPC"
+    :global-prefix "C-SPC")
+
+  (gedeon/leader-keys
+   "t" '(:ignore t :which-key "toggles")
+   "tt" '(counsel-load-theme :which-key "choose theme")))
+
+
+(defun gedeon/evil-hook ()
+  (dolist (mode '(custom-mode
+		  eshell-mode
+		  git-rebase-mode
+		  erc-mode
+		  circe-server-mode
+		  circe-chat-mode
+		  circe-query-mode
+		  sauron-mode
+		  term-mode))
+    (add-to-list 'evil-emacs-state-modes mode)))
+
+
+(use-package evil
+  :init
+  (setq evil-want-integration t)
+  (setq evil-want-keybinding nil)
+  (setq evil-want-C-u-scroll t)
+  (setq evil-want-C-i-jump nil)
+  :hook (evil-mode . gedeon/evil-hook)
+  :config
+  (evil-mode 1)
+  (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
+  (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
+
+  ;;use visuel line motions even outside of visual line mode buffers
+  (evil-global-set-key 'motion "j" 'evil-next-visual-line)
+  (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+
+  (evil-set-initial-state 'messages-buffer-mode 'normal)
+  (evil-set-initial-state 'dashboard-mode 'normal))
