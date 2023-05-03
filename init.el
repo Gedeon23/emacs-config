@@ -155,6 +155,7 @@
 
 (gedeon/leader-keys
   "f" '(:ignore t :which-key "file")
+  "ff" '(counsel-find-file :which-key "find")
   "fs" '(save-buffer :which-key "save file"))
 
 
@@ -261,11 +262,16 @@
                   (org-level-8 . 1.1)))
     (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
 
-(use-package org
-  :hook (org-mode . gedeon/org-mode-setup)
-  :config
-  (setq org-ellipsis " ▾")
-  (gedeon/org-font-setup))
+
+  (use-package org
+    :hook (org-mode . gedeon/org-mode-setup)
+    :config
+    (setq org-ellipsis " ▾")
+    (gedeon/org-font-setup)
+
+    (setq org-agenda-files
+	  '("~/org/todo.org")))
+
 
 (use-package org-bullets
   :after org 
