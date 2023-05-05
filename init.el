@@ -279,13 +279,77 @@
     (gedeon/org-font-setup)
 
     (setq org-agenda-files
-	  '("~/org/todo.org"))
+	  '("~/org/todo.org")
+	  '("~/org/habits.org"))
+
+    (require 'org-habit)
+    (add-to-list 'org-modules 'org-habit)
+    (setq org-habit-graph-column 60)
+    
+    (define-key org-agenda-mode-map "j" 'evil-next-line)
+    (define-key org-agenda-mode-map "k" 'evil-previous-line)
 
     (setq org-todo-keywords
 	  '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
 	    (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
 
-    )
+    (setq org-refile-targets
+	  '(("Archive.org" :maxlevel . 1)
+	    ("Tasks.org" :maxlevel . 1)))
+
+    (advice-add 'org-refile :after 'org-save-all-org-buffers)
+
+    (setq org-tag-alist
+	  '((:startgroup)
+					; Put mutually exclusive tags here
+	    (:endgroup)
+	    ("@errand" . ?E)
+	    ("@work" . ?W)
+	    ("@home" . ?H)
+	    ("agenda" . ?a)
+	    ("planning" . ?p)
+	    ("publish" . ?P)
+	    ("batch" . ?b)
+	    ("note" . ?n)
+	    ("idea" . ?i)))
+    
+    (setq org-agenda-custom-commands
+	  '(("d" "Dashboard"
+	     ((agenda "" ((org-deadline-warning-days 7)))
+	      (todo "NEXT"
+		    ((org-agenda-overriding-header "Next Tasks")))
+	      (tags-todo "agenda/ACTIVE" ((org-agenda-overriding-header "Active Projects")))))
+
+
+  (setq org-capture-templates
+    `(("t" "Tasks / Projects")
+      ("tt" "Task" entry (file+olp "~/org/todo.org" "Inbox")
+           "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
+
+      ("j" "Journal Entries")
+      ("jj" "Journal" entry
+           (file+olp+datetree "~/org/journal.org")
+           "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
+           ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
+           :clock-in :clock-resume
+           :empty-lines 1)
+      ("jm" "Meeting" entry
+           (file+olp+datetree "~/Projects/Code/emacs-from-scratch/OrgFiles/Journal.org")
+           "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
+           :clock-in :clock-resume
+           :empty-lines 1)
+
+      ("w" "Workflows")
+      ("we" "Checking Email" entry (file+olp+datetree "~/Projects/Code/emacs-from-scratch/OrgFiles/Journal.org")
+           "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)
+
+      ("m" "Metrics Capture")
+      ("mw" "Weight" table-line (file+headline "~/Projects/Code/emacs-from-scratch/OrgFiles/Metrics.org" "Weight")
+       "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)))
+
+
+
+	    )
 
 
 (use-package org-bullets
@@ -302,3 +366,16 @@
 
 (use-package visual-fill-column
   :hook (org-mode . gedeon/org-mode-visual-fill))
+
+
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (python . t)))
+
+  (setq org-confirm-babel-evaluate nil)
+
+  (require 'org-tempo)
+
+  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
