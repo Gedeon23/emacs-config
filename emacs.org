@@ -198,13 +198,15 @@
     (gedeon/leader-keys
       "t" '(:ignore t :which-key "toggles")
       "tt" '(counsel-load-theme :which-key "choose theme")
-      "ts" '(hydra-text-scale/body :which-key "scale text"))
+      "ts" '(hydra-text-scale/body :which-key "scale text")
+      "tl" '(org-latex-preview :which-key "toggle latex preview"))
 
     (gedeon/leader-keys
       "f" '(:ignore t :which-key "file")
       "ff" '(counsel-find-file :which-key "find")
       "fs" '(save-buffer :which-key "save file")
-      "ft" '(treemacs :which-key "treemacs"))
+      "ft" '(treemacs :which-key "treemacs")
+      "fp" '(counsel-projectile-switch-project :which-key "switch project"))
 
     (gedeon/leader-keys
       "b" '(:ignore t :which-key "buffer")
@@ -216,9 +218,16 @@
       "hf" '(counsel-describe-function :which-key "describe function")
       "hb" '(describe-bindings :which-key "describe bindings"))
 
-  (gedeon/leader-keys
-    "g" '(:ignore t :which-key "git")
-    "gg" '(magit-status-here :which-key "magit status"))
+    (gedeon/leader-keys
+      "g" '(:ignore t :which-key "git")
+      "gg" '(magit-status-here :which-key "magit status"))
+
+    (gedeon/leader-keys
+      "c"  '(:ignore t :which-key "code")
+      "cs" '(lsp-treemacs-symbols :which-key "scope tree")
+      "cl" '(:ignore t :which-key "lisp")
+      "cle" '(eval-buffer :which-key "eveluate lisp"))
+
 
     (defun gedeon/evil-hook ()
       (dolist (mode '(custom-mode
@@ -400,6 +409,31 @@
 #+end_src
 
 
+** Some more styling
+
+*** org superstar
+
+#+begin_src emacs-lisp
+
+  (require 'org-superstar)
+  (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
+  
+#+end_src
+
+*** org fancy priorities
+
+#+begin_src emacs-lisp
+  
+  (use-package org-fancy-priorities
+  :ensure t
+  :hook
+  (org-mode . org-fancy-priorities-mode)
+  :config
+  (setq org-fancy-priorities-list '("⚡" "⬆" "⬇" "☕")))
+
+#+end_src
+
+
 ** Configure Babel Languages
 
 #+begin_src emacs-lisp
@@ -429,26 +463,62 @@
 #+end_src
 
 
+** Org Roam
+
+#+begin_src emacs-lisp
+  
+  (use-package org-roam
+    :ensure t
+    :custom
+    (org-roam-directory (file-truename "~/org"))
+    :bind (("C-c n l" . org-roam-buffer-toggle)
+           ("C-c n f" . org-roam-node-find)
+           ("C-c n g" . org-roam-graph)
+           ("C-c n i" . org-roam-node-insert)
+           ("C-c n c" . org-roam-capture)
+           ;; Dailies
+           ("C-c n j" . org-roam-dailies-capture-today))
+    :config
+    ;; If you're using a vertical completion framework, you might want a more informative completion interface
+    (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+    (org-roam-db-autosync-mode)
+    ;; If using org-roam-protocol
+    (require 'org-roam-protocol))
+
+#+end_src
+
+
 * Development
 
 ** LSP
 
+
 #+begin_src emacs-lisp
 
-(defun gedeon/lsp-mode-setup ()
-  (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
-  (lsp-headerline-breadcrumb-mode))
-
-(use-package lsp-mode
-  :commands (lsp lsp-deferred)
-  :hook (lsp-mode . gedeon/lsp-mode-setup)
-  :init
-  (setq lsp-keymap-prefix "C-c l")  ;; Or 'C-l', 's-l'
-  :config
-  (lsp-enable-which-key-integration t))
+  (use-package lsp-mode
+    :commands (lsp lsp-deferred)
+    :bind (:map lsp-mode-map
+                ("TAB" . completion-at-point))
+    :config
+;;    (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+;;    (lsp-headerline-breadcrumb-mode)
+    (lsp-enable-which-key-integration t))
 
 #+end_src
 
+
+*** Headerline breadcrumbs
+
+[[https://emacs-lsp.github.io/lsp-mode/page/settings/headerline][Headerline Documentation]]
+
+#+begin_src emacs-lisp :tangle no
+  
+  (defun gedeon/lsp-mode-setup ()
+    (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+    (lsp-headerline-breadcrumb-mode))
+  :hook (lsp-mode . gedeon/lsp-mode-setup)
+
+#+end_src
 
 *** LSP-UI
 
@@ -469,8 +539,6 @@
   (use-package lsp-treemacs
   :after lsp)
 
-  (gedeon/leader-keys
-    "cs" '(lsp-treemacs-symbols :which-key "scope tree"))
   
 #+end_src
 
@@ -484,19 +552,6 @@
     :config
     (setq typescript-indent-level 2))
   
-#+end_src
-
-*** Headerline breadcrumbs
-
-[[https://emacs-lsp.github.io/lsp-mode/page/settings/headerline][Headerline Documentation]]
-
-#+begin_src emacs-lisp
-  
-  (defun gedeon/lsp-mode-setup ()
-    (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
-    (lsp-headerline-breadcrumb-mode))
-  :hook (lsp-mode . gedeon/lsp-mode-setup)
-
 #+end_src
 
 *** Better Completions with company-mode
@@ -537,9 +592,6 @@
 
   (use-package counsel-projectile
     :config (counsel-projectile-mode))
-
-  (gedeon/leader-keys
-    "fp" '(counsel-projectile-switch-project :which-key "switch project"))
   
 #+end_src
 
@@ -557,6 +609,16 @@
 
   
 #+end_src
+
+*** Why this
+
+shows git blame on current line
+[[https://codeberg.org/akib/emacs-why-this][why-this codeberg]]
+
+#+begin_src emacs-lisp
+(global-why-this-mode)
+#+end_src
+
 
 
 ** Rainbow delimiters
