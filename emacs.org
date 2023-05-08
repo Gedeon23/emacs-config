@@ -1,62 +1,76 @@
-
 #+title: Emacs Configuration
 #+author: Gedeon
 #+Property: header-args:emacs-lisp :tangle ./init.el
 
+#+name: is-macos
+#+begin_src emacs-lisp :tangle no
+(eq system-type 'darwin)
+#+end_src
+
+#+RESULTS: is-macos
+
+
 * Package System Setup
 
 #+begin_src emacs-lisp
-(require 'package)
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-			 ("org" . "https://orgmode.org/elpa/")
-			 ("elpa" . "https://elpa.gnu.org/packages/")))
+  (require 'package)
+  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+  (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/"))
+  (add-to-list 'package-archives '("elpa" . "https://elpa.gnu.org/packages/"))
 
-(package-initialize)
-(unless package-archive-contents
-  (package-refresh-contents))
+  (package-initialize)
+  (unless package-archive-contents
+    (package-refresh-contents))
 
-;; Initialize use-package on non-Linux platforms
-(unless (package-installed-p 'use-package)
-  (package-install 'use-package))
+  ;; Initialize use-package on non-Linux platforms
+  (unless (package-installed-p 'use-package)
+    (package-install 'use-package))
 
-(require 'use-package)
-(setq use-package-always-ensure t)
+  (require 'use-package)
+  (setq use-package-always-ensure t)
+
 #+end_src
 
+#+RESULTS:
+: t
 
 * Basic UI Configuration
 
 #+begin_src emacs-lisp
-(setq inhibit-startup-message t)
+  
+  (setq inhibit-startup-message t)
 
-(scroll-bar-mode -1)  ; Disable visible scrollbar
-(tool-bar-mode -1)    ; Disable the toolbar
-(tooltip-mode -1)     ; Disable tooltips
-;; (set-fringe-mode 10)  ; Give some breathing room
+  (scroll-bar-mode -1)  ; Disable visible scrollbar
+  (tool-bar-mode -1)    ; Disable the toolbar
+  (tooltip-mode -1)     ; Disable tooltips
+  ;; (set-fringe-mode 10)  ; Give some breathing room
 
-(menu-bar-mode -1)    ; Disable menu bar
-
-
-;; Make ESC quit prompts
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+  (menu-bar-mode -1)    ; Disable menu bar
 
 
-;; SET THEME
-
-(load-theme 'whiteboard)
-
-
-;; LINE/COLUMN NUMBERS
-(column-number-mode)
-(global-display-line-numbers-mode t)
+  ;; Make ESC quit prompts
+  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
 
-;; disable Line numbers for some modes
-(dolist (mode '(org-mode-hook
-		term-mode-hook
-		eshell-mode-hook))
-  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+  ;; SET THEME
+
+  (load-theme 'whiteboard)
+
+
+  ;; LINE/COLUMN NUMBERS
+  (column-number-mode)
+  (global-display-line-numbers-mode t)
+
+
+  ;; disable Line numbers for some modes
+  (dolist (mode '(org-mode-hook
+		  term-mode-hook
+		  eshell-mode-hook))
+    (add-hook mode (lambda () (display-line-numbers-mode 0))))
+
 #+end_src
+
+#+RESULTS:
 
 ** Font Configuration
 
@@ -77,12 +91,15 @@
 )
 #+end_src
 
+#+RESULTS:
+
 ** Color Theme
 #+begin_src emacs-lisp
 (use-package doom-themes
   :init (load-theme 'doom-tokyo-night t))
 #+end_src
 
+#+RESULTS:
 
 ** Better Modeline
 
@@ -92,6 +109,8 @@
   :init (doom-modeline-mode 1)
   :custom ((doom-modeline-height 50)))
 #+end_src
+
+#+RESULTS:
 
 ** Which Key
 
@@ -103,6 +122,8 @@
   (setq which-key-idle-delay 0.2))
 #+end_src
 
+#+RESULTS:
+: t
 
 
 
@@ -140,6 +161,9 @@
 	 ("C-r" . 'counsel-minibuffer-history)))
 #+end_src
 
+#+RESULTS:
+: counsel-minibuffer-history
+
 ** Helpful
 
 #+begin_src emacs-lisp
@@ -155,6 +179,9 @@
   ([remap describe-key] . helpful-key))
 #+end_src
 
+#+RESULTS:
+: helpful-key
+
 ** Text Scaling
 
 #+begin_src emacs-lisp
@@ -168,6 +195,9 @@
 
 #+end_src
 
+#+RESULTS:
+: hydra-text-scale/body
+
 * Keybinding Configuration
 
 #+begin_src emacs-lisp
@@ -179,18 +209,18 @@
       :global-prefix "C-SPC"))
 
   (gedeon/leader-keys
-   "t" '(:ignore t :which-key "toggles")
-   "tt" '(counsel-load-theme :which-key "choose theme")
-   "ts" '(hydra-text-scale/body :which-key "scale text"))
+    "t" '(:ignore t :which-key "toggles")
+    "tt" '(counsel-load-theme :which-key "choose theme")
+    "ts" '(hydra-text-scale/body :which-key "scale text"))
 
   (gedeon/leader-keys
-   "f" '(:ignore t :which-key "file")
-   "ff" '(counsel-find-file :which-key "find")
-   "fs" '(save-buffer :which-key "save file"))
+    "f" '(:ignore t :which-key "file")
+    "ff" '(counsel-find-file :which-key "find")
+    "fs" '(save-buffer :which-key "save file"))
 
   (gedeon/leader-keys
-   "b" '(:ignore t :which-key "buffer")
-   "bb" '(counsel-switch-buffer :which-key "find"))
+    "b" '(:ignore t :which-key "buffer")
+    "bb" '(counsel-switch-buffer :which-key "find"))
 
 
   (defun gedeon/evil-hook ()
@@ -203,7 +233,9 @@
 		    circe-query-mode
 		    sauron-mode
 		    term-mode))
-      (add-to-list 'evil-emacs-state-modes mode)))
+      (add-to-list 'evil-emacs-state-modes mode))
+    (evil-set-initial-state 'messages-buffer-mode 'normal)
+    (evil-set-initial-state 'dashboard-mode 'normal))
 
 
   (use-package evil
@@ -231,9 +263,10 @@
     (evil-collection-init))
 #+end_src
 
+#+RESULTS:
+: t
 
 * ORG MODE
-
 ** Better Font Faces
 
 #+begin_src emacs-lisp
@@ -252,7 +285,7 @@
                   (org-level-6 . 1.1)
                   (org-level-7 . 1.1)
                   (org-level-8 . 1.1)))
-    (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
+    (set-face-attribute (car face) nil :font "OpenSans" :weight 'semibold :height (cdr face)))
 
 
   (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
@@ -264,9 +297,13 @@
   (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
 #+end_src
 
+#+RESULTS:
+: gedeon/org-font-setup
+
 ** Basic Config
 
 #+begin_src emacs-lisp
+  
   (use-package org
     :hook (org-mode . gedeon/org-mode-setup)
     :config
@@ -274,13 +311,13 @@
     (gedeon/org-font-setup)
 
     (setq org-agenda-files
-	  '("~/org/todo.org")
-	  '("~/org/habits.org"))
+	  '("~/org/todo.org"
+	    "~/org/habits.org"))
 
     (require 'org-habit)
     (add-to-list 'org-modules 'org-habit)
     (setq org-habit-graph-column 60)
-  
+
     (define-key org-agenda-mode-map "j" 'evil-next-line)
     (define-key org-agenda-mode-map "k" 'evil-previous-line)
 
@@ -307,7 +344,7 @@
 	    ("batch" . ?b)
 	    ("note" . ?n)
 	    ("idea" . ?i)))
-  
+
     (setq org-agenda-custom-commands
 	  '(("d" "Dashboard"
 	     ((agenda "" ((org-deadline-warning-days 7)))
@@ -340,12 +377,11 @@
 
 		    ("m" "Metrics Capture")
 		    ("mw" "Weight" table-line (file+headline "~/Projects/Code/emacs-from-scratch/OrgFiles/Metrics.org" "Weight")
-		     "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)))
+		     "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t))))))
 
-
-
-	    )
 #+end_src
+
+#+RESULTS:
 
 
 *** Org Bullets
@@ -381,7 +417,6 @@
   (setq org-confirm-babel-evaluate nil)
 #+end_src
 
-
 ** Auto-tangle Configuration Files
 
 #+begin_src emacs-lisp
@@ -393,12 +428,81 @@
     (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'gedeon/org-babel-tangle-config)))
 #+end_src
 
-
 * Development
+** LSP
+
+#+begin_src emacs-lisp
+  
+  (use-package lsp-mode
+    :commands (lsp lsp-deferred)
+    :init
+    (setq lsp-keymap-prefix "C-c l")
+    :config
+    (lsp-enable-which-key-integration t))
+
+#+end_src
+
+*** LSP-UI
+
+#+begin_src emacs-lisp
+
+  (use-package lsp-ui
+    :hook (lsp-mode . lsp-ui-mode))
+  
+#+end_src
+
+
+
+*** Typescript
+
+#+begin_src emacs-lisp
+
+  (use-package typescript-mode
+    :mode "\\.ts\\'"
+    :hook (typescript-mode . lsp-deferred)
+    :config
+    (setq typescript-indent-level 2))
+  
+#+end_src
+
+*** Headerline breadcrumbs
+
+[[https://emacs-lsp.github.io/lsp-mode/page/settings/headerline][Headerline Documentation]]
+
+#+begin_src emacs-lisp
+  
+  (defun gedeon/lsp-mode-setup ()
+    (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+    (lsp-headerline-breadcrumb-mode))
+  :hook (lsp-mode . gedeon/lsp-mode-setup)
+
+#+end_src
+
+*** Better Completions with company-mode
+
+#+begin_src emacs-lisp
+
+  (use-package company
+  :after lsp-mode
+  :hook (prog-mode . company-mode)
+  :bind (:map company-active-map
+	      ("<tab>" . company-complete-selection))
+  (:map lsp-mode-map
+	("<tab>" . company-indent-or-complete-common))
+  :custom
+  (company-minimum-prefix-length 1)
+  (company-idle-delay 0.0))
+
+  (use-package company-box
+    :hook (company-mode . company-box-mode))
+  
+#+end_src
+
 
 ** Projectile
 
 #+begin_src emacs-lisp
+
   (use-package projectile
     :diminish projectile-mode
     :config (projectile-mode)
@@ -415,30 +519,36 @@
 
   (gedeon/leader-keys
     "fp" '(counsel-projectile-switch-project :which-key "switch project"))
+  
 #+end_src
 
 
 ** Magit
 
 #+begin_src emacs-lisp
-(use-package magit
-  :commands (magit-status magit-get-current-branch)
-  :custom
-  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
-;; evil-magit is now part of evil-collection
+  (use-package magit
+    :commands (magit-status magit-get-current-branch)
+    :custom
+    (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
-(gedeon/leader-keys
-  "g" '(:ignore t :which-key "git"))
+  ;; evil-magit is now part of evil-collection
 
-(gedeon/leader-keys
-  "gg" '(magit-status :which-key "magit status"))
+  (gedeon/leader-keys
+    "g" '(:ignore t :which-key "git"))
+
+  (gedeon/leader-keys
+    "gg" '(magit-status-here :which-key "magit status"))
+  
 #+end_src
+
 
 ** Rainbow delimiters
 
 #+begin_src emacs-lisp
-(use-package rainbow-delimiters
-  :hook (prog-mode . rainbow-delimiters-mode))
+
+  (use-package rainbow-delimiters
+    :hook (prog-mode . rainbow-delimiters-mode))
+  
 #+end_src
 

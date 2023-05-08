@@ -1,7 +1,7 @@
 (require 'package)
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-			 ("org" . "https://orgmode.org/elpa/")
-			 ("elpa" . "https://elpa.gnu.org/packages/")))
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+(add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/"))
+(add-to-list 'package-archives '("elpa" . "https://elpa.gnu.org/packages/"))
 
 (package-initialize)
 (unless package-archive-contents
@@ -130,18 +130,18 @@
     :global-prefix "C-SPC"))
 
 (gedeon/leader-keys
- "t" '(:ignore t :which-key "toggles")
- "tt" '(counsel-load-theme :which-key "choose theme")
- "ts" '(hydra-text-scale/body :which-key "scale text"))
+  "t" '(:ignore t :which-key "toggles")
+  "tt" '(counsel-load-theme :which-key "choose theme")
+  "ts" '(hydra-text-scale/body :which-key "scale text"))
 
 (gedeon/leader-keys
- "f" '(:ignore t :which-key "file")
- "ff" '(counsel-find-file :which-key "find")
- "fs" '(save-buffer :which-key "save file"))
+  "f" '(:ignore t :which-key "file")
+  "ff" '(counsel-find-file :which-key "find")
+  "fs" '(save-buffer :which-key "save file"))
 
 (gedeon/leader-keys
- "b" '(:ignore t :which-key "buffer")
- "bb" '(counsel-switch-buffer :which-key "find"))
+  "b" '(:ignore t :which-key "buffer")
+  "bb" '(counsel-switch-buffer :which-key "find"))
 
 
 (defun gedeon/evil-hook ()
@@ -154,7 +154,9 @@
 		  circe-query-mode
 		  sauron-mode
 		  term-mode))
-    (add-to-list 'evil-emacs-state-modes mode)))
+    (add-to-list 'evil-emacs-state-modes mode))
+  (evil-set-initial-state 'messages-buffer-mode 'normal)
+  (evil-set-initial-state 'dashboard-mode 'normal))
 
 
 (use-package evil
@@ -196,7 +198,7 @@
                   (org-level-6 . 1.1)
                   (org-level-7 . 1.1)
                   (org-level-8 . 1.1)))
-    (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
+    (set-face-attribute (car face) nil :font "OpenSans" :weight 'semibold :height (cdr face)))
 
 
   (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
@@ -214,8 +216,8 @@
   (gedeon/org-font-setup)
 
   (setq org-agenda-files
-	'("~/org/todo.org")
-	'("~/org/habits.org"))
+	'("~/org/todo.org"
+	  "~/org/habits.org"))
 
   (require 'org-habit)
   (add-to-list 'org-modules 'org-habit)
@@ -280,11 +282,7 @@
 
 		  ("m" "Metrics Capture")
 		  ("mw" "Weight" table-line (file+headline "~/Projects/Code/emacs-from-scratch/OrgFiles/Metrics.org" "Weight")
-		   "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)))
-
-
-
-	  )
+		   "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t))))))
 
 (use-package org-bullets
   :after org 
@@ -314,6 +312,41 @@
       (org-babel-tangle))))
   (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'gedeon/org-babel-tangle-config)))
 
+(use-package lsp-mode
+  :commands (lsp lsp-deferred)
+  :init
+  (setq lsp-keymap-prefix "C-c l")
+  :config
+  (lsp-enable-which-key-integration t))
+
+(use-package lsp-ui
+  :hook (lsp-mode . lsp-ui-mode))
+
+(use-package typescript-mode
+  :mode "\\.ts\\'"
+  :hook (typescript-mode . lsp-deferred)
+  :config
+  (setq typescript-indent-level 2))
+
+(defun gedeon/lsp-mode-setup ()
+  (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+  (lsp-headerline-breadcrumb-mode))
+:hook (lsp-mode . gedeon/lsp-mode-setup)
+
+(use-package company
+:after lsp-mode
+:hook (prog-mode . company-mode)
+:bind (:map company-active-map
+	    ("<tab>" . company-complete-selection))
+(:map lsp-mode-map
+      ("<tab>" . company-indent-or-complete-common))
+:custom
+(company-minimum-prefix-length 1)
+(company-idle-delay 0.0))
+
+(use-package company-box
+  :hook (company-mode . company-box-mode))
+
 (use-package projectile
   :diminish projectile-mode
   :config (projectile-mode)
@@ -342,7 +375,7 @@
   "g" '(:ignore t :which-key "git"))
 
 (gedeon/leader-keys
-  "gg" '(magit-status :which-key "magit status"))
+  "gg" '(magit-status-here :which-key "magit status"))
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
