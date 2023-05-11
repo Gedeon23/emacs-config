@@ -7,7 +7,19 @@
 (eq system-type 'darwin)
 #+end_src
 
-#+RESULTS: is-macos
+* Performance
+
+#+begin_src emacs-lisp
+  (defun gedeon/display-startup-time ()
+    (message "Emacs loaded in %s with %d garbage collections."
+             (format "%.2f seconds"
+                     (float-time
+                       (time-subtract after-init-time before-init-time)))
+             gcs-done))
+
+  (add-hook 'emacs-startup-hook #'gedeon/display-startup-time)
+
+#+end_src
 
 
 * Package System Setup
@@ -72,21 +84,23 @@
 
 ** Font Configuration
 
-#+begin_src emacs-lisp
-;; (if (eq system-type 'darwin)
-;;  (set-face-attribute 'default nil :font "JetBrains Mono" :height 150)
-;;  (set-face-attribute 'fixed-pitch nil :font "JetBrains Mono" :height 150)
-;;  (set-face-attribute 'variable-pitch nil :font "OpenSans" :height 150)
-;;  (setq mac-command-modifier 'meta)
-;;  (setq mac-control-modifier 'control)
-;;  (setq mac-option-modifier 'super)
-;; )
+#+begin_src emacs-lisp :tangle no
+  (if (eq system-type 'darwin)
+      (set-face-attribute 'default nil :font "JetBrains Mono" :height 150)
+    (set-face-attribute 'fixed-pitch nil :font "JetBrains Mono" :height 150)
+    (set-face-attribute 'variable-pitch nil :font "Open Sans" :height 150)
+    (setq mac-command-modifier 'meta)
+    (setq mac-control-modifier 'control)
+    (setq mac-option-modifier 'super)
+    )
+#+end_src      
 
-(if (eq system-type 'gnu/linux)
-  (set-face-attribute 'default nil :font "JetBrainsMonoNL Nerd Font" :height 150)
-  (set-face-attribute 'fixed-pitch nil :font "JetBrainsMonoNL Nerd Font" :height 150)
-  (set-face-attribute 'variable-pitch nil :font "OpenSans" :height 150)
-)
+#+begin_src  emacs-lisp :tangle yes
+     (if (eq system-type 'gnu/linux)
+       (set-face-attribute 'default nil :font "JetBrainsMonoNL Nerd Font" :height 180)
+       (set-face-attribute 'fixed-pitch nil :font "JetBrainsMonoNL Nerd Font" :height 180)
+       (set-face-attribute 'variable-pitch nil :font "OpenSans" :height 180)
+       )
 #+end_src
 
 
@@ -187,47 +201,93 @@
 
 * Keybinding Configuration
 
+** General Keybindings
+
 #+begin_src emacs-lisp
-    (use-package general
-      :config
-      (general-create-definer gedeon/leader-keys
-        :keymaps '(normal insert visual emacs)
-        :prefix "SPC"
-        :global-prefix "C-SPC"))
+  (use-package general
+    :config
+    (general-create-definer gedeon/leader-keys
+      :keymaps '(normal insert visual emacs)
+      :prefix "SPC"
+      :global-prefix "C-SPC"))
 
-    (gedeon/leader-keys
-      "t" '(:ignore t :which-key "toggles")
-      "tt" '(counsel-load-theme :which-key "choose theme")
-      "ts" '(hydra-text-scale/body :which-key "scale text")
-      "tl" '(org-latex-preview :which-key "toggle latex preview"))
+  #+end_src
 
-    (gedeon/leader-keys
-      "f" '(:ignore t :which-key "file")
-      "ff" '(counsel-find-file :which-key "find")
-      "fs" '(save-buffer :which-key "save file")
-      "ft" '(treemacs :which-key "treemacs")
-      "fp" '(counsel-projectile-switch-project :which-key "switch project"))
 
-    (gedeon/leader-keys
-      "b" '(:ignore t :which-key "buffer")
-      "bb" '(counsel-switch-buffer :which-key "find"))
+*** toggle Keybindings
 
-    (gedeon/leader-keys
-      "h" '(:ignore t :which-key "help")
-      "hv" '(counsel-describe-variable :which-key "describe variable")
-      "hf" '(counsel-describe-function :which-key "describe function")
-      "hb" '(describe-bindings :which-key "describe bindings"))
+  #+begin_src emacs-lisp
 
-    (gedeon/leader-keys
-      "g" '(:ignore t :which-key "git")
-      "gg" '(magit-status-here :which-key "magit status"))
+  (gedeon/leader-keys
+    "t" '(:ignore t :which-key "toggles")
+    "tt" '(counsel-load-theme :which-key "choose theme")
+    "ts" '(hydra-text-scale/body :which-key "scale text")
+    "tl" '(org-latex-preview :which-key "toggle latex preview"))
 
-    (gedeon/leader-keys
-      "c"  '(:ignore t :which-key "code")
-      "cs" '(lsp-treemacs-symbols :which-key "scope tree")
-      "cl" '(:ignore t :which-key "lisp")
-      "cle" '(eval-buffer :which-key "eveluate lisp"))
+  #+end_src
 
+
+*** File Keybindings
+
+  #+begin_src emacs-lisp
+  (gedeon/leader-keys
+    "f" '(:ignore t :which-key "file")
+    "ff" '(counsel-find-file :which-key "find")
+    "fs" '(save-buffer :which-key "save file")
+    "ft" '(treemacs :which-key "treemacs")
+    "fp" '(counsel-projectile-switch-project :which-key "switch project"))
+
+  #+end_src
+
+*** Buffer Keybindings
+
+  #+begin_src emacs-lisp
+  (gedeon/leader-keys
+    "b" '(:ignore t :which-key "buffer")
+    "bb" '(counsel-switch-buffer :which-key "find"))
+
+  #+end_src
+
+*** Help Keybindings
+
+  #+begin_src emacs-lisp
+  (gedeon/leader-keys
+    "h" '(:ignore t :which-key "help")
+    "hv" '(counsel-describe-variable :which-key "describe variable")
+    "hf" '(counsel-describe-function :which-key "describe function")
+    "hb" '(describe-bindings :which-key "describe bindings"))
+
+  #+end_src
+
+*** GIT Keybindings
+  
+  #+begin_src emacs-lisp
+  (gedeon/leader-keys
+    "g" '(:ignore t :which-key "git")
+    "gg" '(magit-status-here :which-key "magit status"))
+
+  #+end_src
+
+
+*** Code Keybindings
+
+  
+  #+begin_src emacs-lisp
+  (gedeon/leader-keys
+    "c"  '(:ignore t :which-key "code")
+    "cs" '(lsp-treemacs-symbols :which-key "scope tree")
+    "cl" '(:ignore t :which-key "lisp")
+    "cle" '(eval-buffer :which-key "eveluate lisp")
+    "cb" '(:ignore t :which-key "code block")
+    "cbe" '(org-babel-execute-src-block :which-key "execute"))
+
+  #+end_src
+
+  
+** Evil
+
+  
+  #+begin_src emacs-lisp
 
     (defun gedeon/evil-hook ()
       (dolist (mode '(custom-mode
@@ -262,53 +322,54 @@
       (evil-set-initial-state 'messages-buffer-mode 'normal)
       (evil-set-initial-state 'dashboard-mode 'normal))
 
+#+end_src
+
+
+*** Evil Collection
+
+#+begin_src emacs-lisp
+    
     (use-package evil-collection
       :after evil
       :config
       (evil-collection-init))
+
+#+end_src
+
+
+*** Evil Escape
+
+#+begin_src emacs-lisp
+
+  (use-package evil-escape
+    :hook (evil-mode . evil-escape-mode)
+    :config
+    (setq evil-escape-key-sequence "jk"))
+
+  (evil-escape-mode 1)
+
 #+end_src
 
 
 * ORG MODE
-** Better Font Faces
-
-#+begin_src emacs-lisp
-(defun gedeon/org-font-setup ()
-  ;; Replace list hyphen with dot
-  (font-lock-add-keywords 'org-mode
-                          '(("^ *\\([-]\\) "
-                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-
-  ;; Set faces for heading levels
-  (dolist (face '((org-level-1 . 1.2)
-                  (org-level-2 . 1.1)
-                  (org-level-3 . 1.05)
-                  (org-level-4 . 1.0)
-                  (org-level-5 . 1.1)
-                  (org-level-6 . 1.1)
-                  (org-level-7 . 1.1)
-                  (org-level-8 . 1.1)))
-    (set-face-attribute (car face) nil :font "OpenSans" :weight 'semibold :height (cdr face)))
-
-
-  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
-  (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
-#+end_src
-
-
 ** Basic Config
 
 #+begin_src emacs-lisp
+  (defun gedeon/org-mode-setup ()
+    (org-indent-mode)
+    (variable-pitch-mode 1)
+    (visual-line-mode 1)
+    (gedeon/leader-keys
+      "m" '(:ignore t :which-key "org-mode")
+      "mt" '(org-todo :which-key "todo state")
+      "mI" '(org-id-get-create :which-key "ad id")
+      "mn" '(:ignore t :which-key "node")
+      "mni" '(org-roam-node-insert :which-key "insert link")))
+
 
   (use-package org
     :hook
     (org-mode . gedeon/org-mode-setup)
-    (org-mode . org-indent-mode)
     :config
     (setq org-ellipsis " ▾")
     (gedeon/org-font-setup)
@@ -385,16 +446,39 @@
 #+end_src
 
 
-*** Org Bullets
+
+** Better Font Faces
 
 #+begin_src emacs-lisp
-(use-package org-bullets
-  :after org 
-  :hook (org-mode . org-bullets-mode)
-  :custom
-  (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+(defun gedeon/org-font-setup ()
+  ;; Replace list hyphen with dot
+  (font-lock-add-keywords 'org-mode
+                          '(("^ *\\([-]\\) "
+                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+
+  ;; Set faces for heading levels
+  (dolist (face '((org-level-1 . 1.2)
+                  (org-level-2 . 1.1)
+                  (org-level-3 . 1.05)
+                  (org-level-4 . 1.0)
+                  (org-level-5 . 1.1)
+                  (org-level-6 . 1.1)
+                  (org-level-7 . 1.1)
+                  (org-level-8 . 1.1)))
+    (set-face-attribute (car face) nil :font "OpenSans" :weight 'semibold :height (cdr face)))
+
+
+  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
 #+end_src
 
+
+** Some more styling
 
 *** Center Org Buffers
 
@@ -409,15 +493,25 @@
 #+end_src
 
 
-** Some more styling
+*** Org Bullets
+
+#+begin_src emacs-lisp
+(use-package org-bullets
+;;  :after org 
+;;  :hook (org-mode . org-bullets-mode)
+  :custom
+  (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+#+end_src
+
 
 *** org superstar
 
 #+begin_src emacs-lisp
 
   (require 'org-superstar)
+  (setq org-hide-leading-stars 100)
   (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
-  
+
 #+end_src
 
 *** org fancy priorities
@@ -488,6 +582,66 @@
 #+end_src
 
 
+** Org noter
+
+#+begin_src emacs-lisp :tangle no
+(use-package org-noter
+  :config
+  ;; Your org-noter config ........
+  (require 'org-noter-pdftools))
+
+(use-package org-pdftools
+  :hook (org-mode . org-pdftools-setup-link))
+
+(use-package org-noter-pdftools
+  :after org-noter
+  :config
+  ;; Add a function to ensure precise note is inserted
+  (defun org-noter-pdftools-insert-precise-note (&optional toggle-no-questions)
+    (interactive "P")
+    (org-noter--with-valid-session
+     (let ((org-noter-insert-note-no-questions (if toggle-no-questions
+                                                   (not org-noter-insert-note-no-questions)
+                                                 org-noter-insert-note-no-questions))
+           (org-pdftools-use-isearch-link t)
+           (org-pdftools-use-freepointer-annot t))
+       (org-noter-insert-note (org-noter--get-precise-info)))))
+
+  ;; fix https://github.com/weirdNox/org-noter/pull/93/commits/f8349ae7575e599f375de1be6be2d0d5de4e6cbf
+  (defun org-noter-set-start-location (&optional arg)
+    "When opening a session with this document, go to the current location.
+With a prefix ARG, remove start location."
+    (interactive "P")
+    (org-noter--with-valid-session
+     (let ((inhibit-read-only t)
+           (ast (org-noter--parse-root))
+           (location (org-noter--doc-approx-location (when (called-interactively-p 'any) 'interactive))))
+       (with-current-buffer (org-noter--session-notes-buffer session)
+         (org-with-wide-buffer
+          (goto-char (org-element-property :begin ast))
+          (if arg
+              (org-entry-delete nil org-noter-property-note-location)
+            (org-entry-put nil org-noter-property-note-location
+                           (org-noter--pretty-print-location location))))))))
+  (with-eval-after-load 'pdf-annot
+    (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
+#+end_src
+
+
+** Better Media integration
+
+*** Org Download
+
+#+begin_src emacs-lisp
+  (require 'org-download)
+
+  (add-hook 'dired-mode-hook 'org-download-enable)
+#+end_src
+
+
+
+
+
 * Development
 
 ** LSP
@@ -495,14 +649,15 @@
 
 #+begin_src emacs-lisp
 
-  (use-package lsp-mode
-    :commands (lsp lsp-deferred)
-    :bind (:map lsp-mode-map
-                ("TAB" . completion-at-point))
-    :config
-;;    (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
-;;    (lsp-headerline-breadcrumb-mode)
-    (lsp-enable-which-key-integration t))
+    (use-package lsp-mode
+      :commands (lsp lsp-deferred)
+      :bind (:map lsp-mode-map
+                  ("TAB" . completion-at-point))
+      :hook (rust-mode . lsp-mode)
+      :config
+  ;;    (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+  ;;    (lsp-headerline-breadcrumb-mode)
+      (lsp-enable-which-key-integration t))
 
 #+end_src
 
@@ -524,10 +679,10 @@
 
 #+begin_src emacs-lisp
 
-(use-package lsp-ui
-  :hook (lsp-mode . lsp-ui-mode)
-  :custom
-  (lsp-ui-doc-position 'bottom))
+  (use-package lsp-ui
+    :hook (lsp-mode . lsp-ui-mode)
+    :custom
+    (lsp-ui-doc-position 'bottom))
   
 #+end_src
 
@@ -572,6 +727,79 @@
   (use-package company-box
     :hook (company-mode . company-box-mode))
   
+#+end_src
+
+
+** Languages
+
+*** RUST
+
+#+begin_src emacs-lisp
+
+  (defun gedeon/rust-hook ()
+    (setq indent-tabs-mode nil)
+    (prettify-symbols-mode)
+    (gedeon/leader-keys
+     "m" '(:ignore t :which-key "rust-mode")
+     "mr" '(rust-run :which-key "run")
+     "mc" '(rust-compile :which-key "compile"))
+    )
+
+
+  (require 'rust-mode)
+  (add-hook 'rust-mode-hook
+            (gedeon/rust-hook))
+  (setq rust-format-on-save t)
+
+#+end_src
+
+
+
+** Snippets
+*** AAS
+
+#+begin_src emacs-lisp :tangle no
+  (defun gedeon/aas-snippets ()
+  )
+#+end_src
+
+
+automaticly activating snippets
+
+
+: Error (use-package): aas/:config: Condition must be either nil or a function Disable showing Disable logging
+
+#+begin_src emacs-lisp
+    (use-package aas
+      :hook (LaTeX-mode . aas-activate-for-major-mode)
+      :hook (org-mode . aas-activate-for-major-mode)
+      :config (aas-set-snippets 'latex-mode
+    ;; set condition!
+    :cond #'texmathp ; expand only while in math
+    "supp" "\\supp"
+    "//" '(yas "\\frac{$1}{$2}$0")
+    "On" "O(n)"
+    "O1" "O(1)"
+    "Olog" "O(\\log n)"
+    "Olon" "O(n \\log n)"
+    ;; Use YAS/Tempel snippets with ease!
+    "amin" '(yas "\\argmin_{$1}") ; YASnippet snippet shorthand form
+    "amax" '(tempel "\\argmax_{" p "}") ; Tempel snippet shorthand form
+    ;; bind to functions!
+    ";ig" #'insert-register
+    ";call-sin"
+    (lambda (angle) ; Get as fancy as you like
+      (interactive "sAngle: ")
+      (insert (format "%s" (sin (string-to-number angle)))))))
+#+end_src
+
+
+*** Yasnippet
+
+#+begin_src emacs-lisp
+  (use-package yasnippet
+  :config
+  (yas-global-mode 1))
 #+end_src
 
 

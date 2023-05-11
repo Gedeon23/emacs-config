@@ -1,3 +1,12 @@
+(defun gedeon/display-startup-time ()
+  (message "Emacs loaded in %s with %d garbage collections."
+           (format "%.2f seconds"
+                   (float-time
+                     (time-subtract after-init-time before-init-time)))
+           gcs-done))
+
+(add-hook 'emacs-startup-hook #'gedeon/display-startup-time)
+
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/"))
@@ -19,7 +28,7 @@
 (scroll-bar-mode -1)  ; Disable visible scrollbar
 (tool-bar-mode -1)    ; Disable the toolbar
 (tooltip-mode -1)     ; Disable tooltips
-;; (set-fringe-mode 10)  ; Give some breathing room
+(set-fringe-mode 0)  ; Give some breathing room
 
 (menu-bar-mode -1)    ; Disable menu bar
 
@@ -33,7 +42,7 @@
 (load-theme 'whiteboard)
 
 
-;; LINE/COLUMN NUMBERS
+;; LINE/COLUMN NUMBER S
 (column-number-mode)
 (global-display-line-numbers-mode t)
 
@@ -41,26 +50,14 @@
 ;; disable Line numbers for some modes
 (dolist (mode '(org-mode-hook
 		term-mode-hook
+		treemacs-mode-hook
 		eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-;; (if (eq system-type 'darwin)
-;;  (set-face-attribute 'default nil :font "JetBrains Mono" :height 150)
-;;  (set-face-attribute 'fixed-pitch nil :font "JetBrains Mono" :height 150)
-;;  (set-face-attribute 'variable-pitch nil :font "OpenSans" :height 150)
-;;  (setq mac-command-modifier 'meta)
-;;  (setq mac-control-modifier 'control)
-;;  (setq mac-option-modifier 'super)
-;; )
-
-(if (eq system-type 'gnu/linux)
-  (set-face-attribute 'default nil :font "JetBrainsMonoNL Nerd Font" :height 150)
-  (set-face-attribute 'fixed-pitch nil :font "JetBrainsMonoNL Nerd Font" :height 150)
-  (set-face-attribute 'variable-pitch nil :font "OpenSans" :height 150)
-)
-
 (use-package doom-themes
-  :init (load-theme 'doom-tokyo-night t))
+  :init (load-theme 'doom-tokyo-night t)
+  (setq doom-themes-treemacs-theme "doom-colors")
+  )
 
 (use-package doom-modeline
   :ensure t
@@ -132,28 +129,48 @@
 (gedeon/leader-keys
   "t" '(:ignore t :which-key "toggles")
   "tt" '(counsel-load-theme :which-key "choose theme")
-  "ts" '(hydra-text-scale/body :which-key "scale text"))
+  "ts" '(hydra-text-scale/body :which-key "scale text")
+  "tl" '(org-latex-preview :which-key "toggle latex preview"))
 
 (gedeon/leader-keys
   "f" '(:ignore t :which-key "file")
   "ff" '(counsel-find-file :which-key "find")
-  "fs" '(save-buffer :which-key "save file"))
+  "fs" '(save-buffer :which-key "save file")
+  "ft" '(treemacs :which-key "treemacs")
+  "fp" '(counsel-projectile-switch-project :which-key "switch project"))
 
 (gedeon/leader-keys
   "b" '(:ignore t :which-key "buffer")
   "bb" '(counsel-switch-buffer :which-key "find"))
 
+(gedeon/leader-keys
+  "h" '(:ignore t :which-key "help")
+  "hv" '(counsel-describe-variable :which-key "describe variable")
+  "hf" '(counsel-describe-function :which-key "describe function")
+  "hb" '(describe-bindings :which-key "describe bindings"))
+
+(gedeon/leader-keys
+  "g" '(:ignore t :which-key "git")
+  "gg" '(magit-status-here :which-key "magit status"))
+
+(gedeon/leader-keys
+  "c"  '(:ignore t :which-key "code")
+  "cs" '(lsp-treemacs-symbols :which-key "scope tree")
+  "cl" '(:ignore t :which-key "lisp")
+  "cle" '(eval-buffer :which-key "eveluate lisp")
+  "cb" '(:ignore t :which-key "code block")
+  "cbe" '(org-babel-execute-src-block :which-key "execute"))
 
 (defun gedeon/evil-hook ()
   (dolist (mode '(custom-mode
-		  eshell-mode
-		  git-rebase-mode
-		  erc-mode
-		  circe-server-mode
-		  circe-chat-mode
-		  circe-query-mode
-		  sauron-mode
-		  term-mode))
+                  eshell-mode
+                  git-rebase-mode
+                  erc-mode
+                  circe-server-mode
+                  circe-chat-mode
+                  circe-query-mode
+                  sauron-mode
+                  term-mode))
     (add-to-list 'evil-emacs-state-modes mode))
   (evil-set-initial-state 'messages-buffer-mode 'normal)
   (evil-set-initial-state 'dashboard-mode 'normal))
@@ -165,7 +182,6 @@
   (setq evil-want-keybinding nil)
   (setq evil-want-C-u-scroll t)
   (setq evil-want-C-i-jump nil)
-  :hook (evil-mode . gedeon/evil-hook)
   :config
   (evil-mode 1)
   (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
@@ -182,6 +198,101 @@
   :after evil
   :config
   (evil-collection-init))
+
+(use-package evil-escape
+  :hook (evil-mode . evil-escape-mode)
+  :config
+  (setq evil-escape-key-sequence "jk"))
+
+(evil-escape-mode 1)
+
+(defun gedeon/org-mode-setup ()
+  (org-indent-mode)
+  (variable-pitch-mode 1)
+  (visual-line-mode 1)
+  (gedeon/leader-keys
+    "m" '(:ignore t :which-key "org-mode")
+    "mt" '(org-todo :which-key "todo state")
+    "mI" '(org-id-get-create :which-key "ad id")
+    "mn" '(:ignore t :which-key "node")
+    "mni" '(org-roam-node-insert :which-key "insert link")))
+
+
+(use-package org
+  :hook
+  (org-mode . gedeon/org-mode-setup)
+  :config
+  (setq org-ellipsis " ▾")
+  (gedeon/org-font-setup)
+
+  (setq org-agenda-files
+        '("~/org/todo.org"
+          "~/org/habits.org"))
+
+  (require 'org-habit)
+  (add-to-list 'org-modules 'org-habit)
+  (setq org-habit-graph-column 60)
+
+  (define-key org-agenda-mode-map "j" 'evil-next-line)
+  (define-key org-agenda-mode-map "k" 'evil-previous-line)
+
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
+          (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
+
+  (setq org-refile-targets
+        '(("Archive.org" :maxlevel . 1)
+          ("Tasks.org" :maxlevel . 1)))
+
+  (advice-add 'org-refile :after 'org-save-all-org-buffers)
+
+  (setq org-tag-alist
+        '((:startgroup)
+                                        ; Put mutually exclusive tags here
+          (:endgroup)
+          ("@errand" . ?E)
+          ("@work" . ?W)
+          ("@home" . ?H)
+          ("agenda" . ?a)
+          ("planning" . ?p)
+          ("publish" . ?P)
+          ("batch" . ?b)
+          ("note" . ?n)
+          ("idea" . ?i)))
+
+  (setq org-agenda-custom-commands
+        '(("d" "Dashboard"
+           ((agenda "" ((org-deadline-warning-days 7)))
+            (todo "NEXT"
+                  ((org-agenda-overriding-header "Next Tasks")))
+            (tags-todo "agenda/ACTIVE" ((org-agenda-overriding-header "Active Projects")))))
+
+
+          (setq org-capture-templates
+                `(("t" "Tasks / Projects")
+                  ("tt" "Task" entry (file+olp "~/org/todo.org" "Inbox")
+                   "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
+
+                  ("j" "Journal Entries")
+                  ("jj" "Journal" entry
+                   (file+olp+datetree "~/org/journal.org")
+                   "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
+                   ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
+                   :clock-in :clock-resume
+                   :empty-lines 1)
+                  ("jm" "Meeting" entry
+                   (file+olp+datetree "~/Projects/Code/emacs-from-scratch/OrgFiles/Journal.org")
+                   "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
+                   :clock-in :clock-resume
+                   :empty-lines 1)
+
+                  ("w" "Workflows")
+                  ("we" "Checking Email" entry (file+olp+datetree "~/Projects/Code/emacs-from-scratch/OrgFiles/Journal.org")
+                   "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)
+
+                  ("m" "Metrics Capture")
+                  ("mw" "Weight" table-line (file+headline "~/Projects/Code/emacs-from-scratch/OrgFiles/Metrics.org" "Weight")
+                   "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t))))))
 
 (defun gedeon/org-font-setup ()
   ;; Replace list hyphen with dot
@@ -209,87 +320,6 @@
   (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
   (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
 
-(use-package org
-  :hook (org-mode . gedeon/org-mode-setup)
-  :config
-  (setq org-ellipsis " ▾")
-  (gedeon/org-font-setup)
-
-  (setq org-agenda-files
-	'("~/org/todo.org"
-	  "~/org/habits.org"))
-
-  (require 'org-habit)
-  (add-to-list 'org-modules 'org-habit)
-  (setq org-habit-graph-column 60)
-
-  (define-key org-agenda-mode-map "j" 'evil-next-line)
-  (define-key org-agenda-mode-map "k" 'evil-previous-line)
-
-  (setq org-todo-keywords
-	'((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
-	  (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
-
-  (setq org-refile-targets
-	'(("Archive.org" :maxlevel . 1)
-	  ("Tasks.org" :maxlevel . 1)))
-
-  (advice-add 'org-refile :after 'org-save-all-org-buffers)
-
-  (setq org-tag-alist
-	'((:startgroup)
-					; Put mutually exclusive tags here
-	  (:endgroup)
-	  ("@errand" . ?E)
-	  ("@work" . ?W)
-	  ("@home" . ?H)
-	  ("agenda" . ?a)
-	  ("planning" . ?p)
-	  ("publish" . ?P)
-	  ("batch" . ?b)
-	  ("note" . ?n)
-	  ("idea" . ?i)))
-
-  (setq org-agenda-custom-commands
-	'(("d" "Dashboard"
-	   ((agenda "" ((org-deadline-warning-days 7)))
-	    (todo "NEXT"
-		  ((org-agenda-overriding-header "Next Tasks")))
-	    (tags-todo "agenda/ACTIVE" ((org-agenda-overriding-header "Active Projects")))))
-
-
-	  (setq org-capture-templates
-		`(("t" "Tasks / Projects")
-		  ("tt" "Task" entry (file+olp "~/org/todo.org" "Inbox")
-		   "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
-
-		  ("j" "Journal Entries")
-		  ("jj" "Journal" entry
-		   (file+olp+datetree "~/org/journal.org")
-		   "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
-		   ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
-		   :clock-in :clock-resume
-		   :empty-lines 1)
-		  ("jm" "Meeting" entry
-		   (file+olp+datetree "~/Projects/Code/emacs-from-scratch/OrgFiles/Journal.org")
-		   "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
-		   :clock-in :clock-resume
-		   :empty-lines 1)
-
-		  ("w" "Workflows")
-		  ("we" "Checking Email" entry (file+olp+datetree "~/Projects/Code/emacs-from-scratch/OrgFiles/Journal.org")
-		   "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)
-
-		  ("m" "Metrics Capture")
-		  ("mw" "Weight" table-line (file+headline "~/Projects/Code/emacs-from-scratch/OrgFiles/Metrics.org" "Weight")
-		   "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t))))))
-
-(use-package org-bullets
-  :after org 
-  :hook (org-mode . org-bullets-mode)
-  :custom
-  (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
-
 (defun gedeon/org-mode-visual-fill ()
   (setq visual-fill-column-width 100
         visual-fill-column-center-text t)
@@ -298,9 +328,30 @@
 (use-package visual-fill-column
   :hook (org-mode . gedeon/org-mode-visual-fill))
 
+(use-package org-bullets
+;;  :after org 
+;;  :hook (org-mode . org-bullets-mode)
+  :custom
+  (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+
+(require 'org-superstar)
+(setq org-hide-leading-stars 100)
+(add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
+
+(use-package org-fancy-priorities
+:ensure t
+:hook
+(org-mode . org-fancy-priorities-mode)
+:config
+(setq org-fancy-priorities-list '("⚡" "⬆" "⬇" "☕")))
+
+(use-package ob-rust)
+
+
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((emacs-lisp . t)
+   (rust . t)
    (python . t)))
 
 (setq org-confirm-babel-evaluate nil)
@@ -312,26 +363,51 @@
       (org-babel-tangle))))
   (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'gedeon/org-babel-tangle-config)))
 
-(use-package lsp-mode
-  :commands (lsp lsp-deferred)
-  :init
-  (setq lsp-keymap-prefix "C-c l")
+(use-package org-roam
+  :ensure t
+  :custom
+  (org-roam-directory (file-truename "~/org"))
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n g" . org-roam-graph)
+         ("C-c n i" . org-roam-node-insert)
+         ("C-c n c" . org-roam-capture)
+         ;; Dailies
+         ("C-c n j" . org-roam-dailies-capture-today))
   :config
-  (lsp-enable-which-key-integration t))
+  ;; If you're using a vertical completion framework, you might want a more informative completion interface
+  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+  (org-roam-db-autosync-mode)
+  ;; If using org-roam-protocol
+  (require 'org-roam-protocol))
+
+(require 'org-download)
+
+(add-hook 'dired-mode-hook 'org-download-enable)
+
+(use-package lsp-mode
+    :commands (lsp lsp-deferred)
+    :bind (:map lsp-mode-map
+                ("TAB" . completion-at-point))
+    :hook (rust-mode . lsp-mode)
+    :config
+;;    (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+;;    (lsp-headerline-breadcrumb-mode)
+    (lsp-enable-which-key-integration t))
 
 (use-package lsp-ui
-  :hook (lsp-mode . lsp-ui-mode))
+  :hook (lsp-mode . lsp-ui-mode)
+  :custom
+  (lsp-ui-doc-position 'bottom))
+
+(use-package lsp-treemacs
+:after lsp)
 
 (use-package typescript-mode
   :mode "\\.ts\\'"
   :hook (typescript-mode . lsp-deferred)
   :config
   (setq typescript-indent-level 2))
-
-(defun gedeon/lsp-mode-setup ()
-  (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
-  (lsp-headerline-breadcrumb-mode))
-:hook (lsp-mode . gedeon/lsp-mode-setup)
 
 (use-package company
 :after lsp-mode
@@ -347,6 +423,47 @@
 (use-package company-box
   :hook (company-mode . company-box-mode))
 
+(defun gedeon/rust-hook ()
+  (setq indent-tabs-mode nil)
+  (prettify-symbols-mode)
+  (gedeon/leader-keys
+   "m" '(:ignore t :which-key "rust-mode")
+   "mr" '(rust-run :which-key "run")
+   "mc" '(rust-compile :which-key "compile"))
+  )
+
+
+(require 'rust-mode)
+(add-hook 'rust-mode-hook
+          (gedeon/rust-hook))
+(setq rust-format-on-save t)
+
+(use-package aas
+  :hook (LaTeX-mode . aas-activate-for-major-mode)
+  :hook (org-mode . aas-activate-for-major-mode)
+  :config (aas-set-snippets 'latex-mode
+;; set condition!
+:cond #'texmathp ; expand only while in math
+"supp" "\\supp"
+"//" '(yas "\\frac{$1}{$2}$0")
+"On" "O(n)"
+"O1" "O(1)"
+"Olog" "O(\\log n)"
+"Olon" "O(n \\log n)"
+;; Use YAS/Tempel snippets with ease!
+"amin" '(yas "\\argmin_{$1}") ; YASnippet snippet shorthand form
+"amax" '(tempel "\\argmax_{" p "}") ; Tempel snippet shorthand form
+;; bind to functions!
+";ig" #'insert-register
+";call-sin"
+(lambda (angle) ; Get as fancy as you like
+  (interactive "sAngle: ")
+  (insert (format "%s" (sin (string-to-number angle)))))))
+
+(use-package yasnippet
+:config
+(yas-global-mode 1))
+
 (use-package projectile
   :diminish projectile-mode
   :config (projectile-mode)
@@ -361,9 +478,6 @@
 (use-package counsel-projectile
   :config (counsel-projectile-mode))
 
-(gedeon/leader-keys
-  "fp" '(counsel-projectile-switch-project :which-key "switch project"))
-
 (use-package magit
   :commands (magit-status magit-get-current-branch)
   :custom
@@ -371,11 +485,7 @@
 
 ;; evil-magit is now part of evil-collection
 
-(gedeon/leader-keys
-  "g" '(:ignore t :which-key "git"))
-
-(gedeon/leader-keys
-  "gg" '(magit-status-here :which-key "magit status"))
+(global-why-this-mode)
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
