@@ -188,13 +188,13 @@
 ** Text Scaling
 
 #+begin_src emacs-lisp
-(use-package hydra)
+  (use-package hydra)
 
-(defhydra hydra-text-scale (:timeout 4)
-  "scale text"
-  ("j" text-scale-increase "in")
-  ("k" text-scale-decrease "out")
-  ("f" nil "finished" :exit t))
+  (defhydra hydra-text-scale (:timeout 4)
+    "scale text"
+    ("j" text-scale-increase "in")
+    ("k" text-scale-decrease "out")
+    ("f" nil "finished" :exit t))
 
 #+end_src
 
@@ -204,12 +204,16 @@
 ** General Keybindings
 
 #+begin_src emacs-lisp
-  (use-package general
-    :config
-    (general-create-definer gedeon/leader-keys
+    (use-package general
+      :config
+      (general-create-definer gedeon/leader-keys
+        :keymaps '(normal insert visual emacs)
+        :prefix "SPC"
+        :global-prefix "C-SPC")
+      (general-create-definer gedeon/local-leader-keys
       :keymaps '(normal insert visual emacs)
-      :prefix "SPC"
-      :global-prefix "C-SPC"))
+      :prefix "SPC m"
+      :global-prefix "C-SPC m"))
 
   #+end_src
 
@@ -234,11 +238,10 @@
     "f" '(:ignore t :which-key "file")
     "ff" '(counsel-find-file :which-key "find")
     "fs" '(save-buffer :which-key "save file")
-    "ft" '(treemacs :which-key "treemacs")
-    "fp" '(counsel-projectile-switch-project :which-key "switch project"))
+    "ft" '(treemacs :which-key "treemacs"))
 
   #+end_src
-
+  
 *** Buffer Keybindings
 
   #+begin_src emacs-lisp
@@ -247,6 +250,47 @@
     "bb" '(counsel-switch-buffer :which-key "find"))
 
   #+end_src
+
+*** Window Keybindings
+
+#+begin_src emacs-lisp
+
+  (gedeon/leader-keys
+      "w" '(:ignore t :which-key "window")
+      "wn" '(evil-window-vnew :which-key "new")
+      "wl" '(evil-window-right :which-key "right")
+      "wh" '(evil-window-left :which-key "left")
+      "wj" '(evil-window-down :which-key "down")
+      "wk" '(evil-window-up :which-key "up")
+      "ww" '(evil-window-next :which-key "next"))
+
+#+end_src
+
+
+*** "N" i guess notes?
+
+not really sure what I'm doing with this shortcut but I just want to have org roam available no matter what mode I'm in
+
+#+begin_src emacs-lisp
+
+  (gedeon/leader-keys
+      "n" '(:ignore t :which-key "notes")
+      "nf" '(org-roam-node-find :which-key "find")
+      "nc" '(org-roam-capture :which-key "capture"))
+
+#+end_src
+
+
+*** Project Keybindings
+
+#+begin_src emacs-lisp
+
+  (gedeon/leader-keys
+    "p" '(:ignore t :which-key "project")
+    "pp" '(counsel-projectile-switch-project :which-key "switch to project"))
+  
+#+end_src
+
 
 *** Help Keybindings
 
@@ -262,9 +306,10 @@
 *** GIT Keybindings
   
   #+begin_src emacs-lisp
-  (gedeon/leader-keys
-    "g" '(:ignore t :which-key "git")
-    "gg" '(magit-status-here :which-key "magit status"))
+    
+    (gedeon/leader-keys
+      "g" '(:ignore t :which-key "git")
+      "gg" '(magit-status :which-key "magit status"))
 
   #+end_src
 
@@ -322,6 +367,14 @@
       (evil-set-initial-state 'messages-buffer-mode 'normal)
       (evil-set-initial-state 'dashboard-mode 'normal))
 
+
+    (use-package evil-org
+      :ensure t
+      :after org
+      :hook (org-mode . (lambda () evil-org-mode))
+      :config
+      (require 'evil-org-agenda)
+      (evil-org-agenda-set-keys))
 #+end_src
 
 
@@ -355,93 +408,96 @@
 ** Basic Config
 
 #+begin_src emacs-lisp
-  (defun gedeon/org-mode-setup ()
-    (org-indent-mode)
-    (variable-pitch-mode 1)
-    (visual-line-mode 1)
-    (gedeon/leader-keys
-      "m" '(:ignore t :which-key "org-mode")
-      "mt" '(org-todo :which-key "todo state")
-      "mI" '(org-id-get-create :which-key "ad id")
-      "mn" '(:ignore t :which-key "node")
-      "mni" '(org-roam-node-insert :which-key "insert link")))
+          (defun gedeon/org-mode-setup ()
+            (org-indent-mode)
+            (variable-pitch-mode 1)
+            (visual-line-mode 1)
+            (gedeon/local-leader-keys
+              "t" '(org-todo :which-key "todo state")
+              "I" '(org-id-get-create :which-key "ad id")
+              "n" '(:ignore t :which-key "node")
+              "ni" '(org-roam-node-insert :which-key "insert link")
+              "nf" '(org-roam-node-find :which-key "find node")
+              "a" '(org-attach :which-key "agenda")
+              "ns" '(org-narrow-to-subtree :which-key "narrow to subtree")
+              "nw" '(widen :whichkey "widen")))
 
 
-  (use-package org
-    :hook
-    (org-mode . gedeon/org-mode-setup)
-    :config
-    (setq org-ellipsis " ▾")
-    (gedeon/org-font-setup)
+          (use-package org
+            :hook
+            (org-mode . gedeon/org-mode-setup)
+            :config
+            (setq org-ellipsis " ▾")
+            (gedeon/org-font-setup)
 
-    (setq org-agenda-files
-          '("~/org/todo.org"
-            "~/org/habits.org"))
+            (setq org-agenda-files
+                  '("~/org/todo.org"
+                    "~/org/habits.org"))
 
-    (require 'org-habit)
-    (add-to-list 'org-modules 'org-habit)
-    (setq org-habit-graph-column 60)
+            (require 'org-habit)
+            (add-to-list 'org-modules 'org-habit)
+            (setq org-habit-graph-column 60)
 
-    (define-key org-agenda-mode-map "j" 'evil-next-line)
-    (define-key org-agenda-mode-map "k" 'evil-previous-line)
+            (define-key org-agenda-mode-map "j" 'evil-next-line)
+            (define-key org-agenda-mode-map "k" 'evil-previous-line)
 
-    (setq org-todo-keywords
-          '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
-            (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
+            (setq org-todo-keywords
+                  '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
+                    (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
 
-    (setq org-refile-targets
-          '(("Archive.org" :maxlevel . 1)
-            ("Tasks.org" :maxlevel . 1)))
+            (setq org-refile-targets
+                  '(("Archive.org" :maxlevel . 1)
+                    ("Tasks.org" :maxlevel . 1)))
 
-    (advice-add 'org-refile :after 'org-save-all-org-buffers)
+            (advice-add 'org-refile :after 'org-save-all-org-buffers)
 
-    (setq org-tag-alist
-          '((:startgroup)
-                                          ; Put mutually exclusive tags here
-            (:endgroup)
-            ("@errand" . ?E)
-            ("@work" . ?W)
-            ("@home" . ?H)
-            ("agenda" . ?a)
-            ("planning" . ?p)
-            ("publish" . ?P)
-            ("batch" . ?b)
-            ("note" . ?n)
-            ("idea" . ?i)))
+            (setq org-tag-alist
+                  '((:startgroup)
+                                                  ; Put mutually exclusive tags here
+                    (:endgroup)
+                    ("@errand" . ?E)
+                    ("@work" . ?W)
+                    ("@home" . ?H)
+                    ("agenda" . ?a)
+                    ("planning" . ?p)
+                    ("publish" . ?P)
+                    ("batch" . ?b)
+                    ("note" . ?n)
+                    ("idea" . ?i)))
 
-    (setq org-agenda-custom-commands
-          '(("d" "Dashboard"
-             ((agenda "" ((org-deadline-warning-days 7)))
-              (todo "NEXT"
-                    ((org-agenda-overriding-header "Next Tasks")))
-              (tags-todo "agenda/ACTIVE" ((org-agenda-overriding-header "Active Projects")))))
+            (setq org-agenda-custom-commands
+                  '(("d" "Dashboard"
+                     ((agenda "" ((org-deadline-warning-days 7)))
+                      (todo "NEXT"
+                            ((org-agenda-overriding-header "Next Tasks")))
+                      (tags-todo "agenda/ACTIVE" ((org-agenda-overriding-header "Active Projects")))))
 
 
-            (setq org-capture-templates
-                  `(("t" "Tasks / Projects")
-                    ("tt" "Task" entry (file+olp "~/org/todo.org" "Inbox")
-                     "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
+                    (setq org-capture-templates
+                          `(("t" "Tasks / Projects")
+                            ("tt" "Task" entry (file+olp "~/org/todo.org" "Inbox")
+                             "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
 
-                    ("j" "Journal Entries")
-                    ("jj" "Journal" entry
-                     (file+olp+datetree "~/org/journal.org")
-                     "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
-                     ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
-                     :clock-in :clock-resume
-                     :empty-lines 1)
-                    ("jm" "Meeting" entry
-                     (file+olp+datetree "~/Projects/Code/emacs-from-scratch/OrgFiles/Journal.org")
-                     "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
-                     :clock-in :clock-resume
-                     :empty-lines 1)
+                            ("j" "Journal Entries")
+                            ("jj" "Journal" entry
+                             (file+olp+datetree "~/org/journal.org")
+                             "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
+                             ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
+                             :clock-in :clock-resume
+                             :empty-lines 1)
+                            ("jm" "Meeting" entry
+                             (file+olp+datetree "~/Projects/Code/emacs-from-scratch/OrgFiles/Journal.org")
+                             "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
+                             :clock-in :clock-resume
+                             :empty-lines 1)
 
-                    ("w" "Workflows")
-                    ("we" "Checking Email" entry (file+olp+datetree "~/Projects/Code/emacs-from-scratch/OrgFiles/Journal.org")
-                     "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)
+                            ("w" "Workflows")
+                            ("we" "Checking Email" entry (file+olp+datetree "~/Projects/Code/emacs-from-scratch/OrgFiles/Journal.org")
+                             "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)
 
-                    ("m" "Metrics Capture")
-                    ("mw" "Weight" table-line (file+headline "~/Projects/Code/emacs-from-scratch/OrgFiles/Metrics.org" "Weight")
-                     "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t))))))
+                            ("m" "Metrics Capture")
+                            ("mw" "Weight" table-line (file+headline "~/Projects/Code/emacs-from-scratch/OrgFiles/Metrics.org" "Weight")
+                             "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t))))))
 
 #+end_src
 
@@ -749,10 +805,9 @@ With a prefix ARG, remove start location."
   (defun gedeon/rust-hook ()
     (setq indent-tabs-mode nil)
     (prettify-symbols-mode)
-    (gedeon/leader-keys
-     "m" '(:ignore t :which-key "rust-mode")
-     "mr" '(rust-run :which-key "run")
-     "mc" '(rust-compile :which-key "compile"))
+    (gedeon/local-leader-keys
+     "r" '(rust-run :which-key "run")
+     "c" '(rust-compile :which-key "compile"))
     )
 
 
@@ -762,6 +817,8 @@ With a prefix ARG, remove start location."
   (setq rust-format-on-save t)
 
 #+end_src
+
+
 
 
 
@@ -853,7 +910,7 @@ automaticly activating snippets
 shows git blame on current line
 [[https://codeberg.org/akib/emacs-why-this][why-this codeberg]]
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (global-why-this-mode)
 #+end_src
 

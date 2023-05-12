@@ -124,7 +124,11 @@
   (general-create-definer gedeon/leader-keys
     :keymaps '(normal insert visual emacs)
     :prefix "SPC"
-    :global-prefix "C-SPC"))
+    :global-prefix "C-SPC")
+  (general-create-definer gedeon/local-leader-keys
+  :keymaps '(normal insert visual emacs)
+  :prefix "SPC m"
+  :global-prefix "C-SPC m"))
 
 (gedeon/leader-keys
   "t" '(:ignore t :which-key "toggles")
@@ -136,12 +140,29 @@
   "f" '(:ignore t :which-key "file")
   "ff" '(counsel-find-file :which-key "find")
   "fs" '(save-buffer :which-key "save file")
-  "ft" '(treemacs :which-key "treemacs")
-  "fp" '(counsel-projectile-switch-project :which-key "switch project"))
+  "ft" '(treemacs :which-key "treemacs"))
 
 (gedeon/leader-keys
   "b" '(:ignore t :which-key "buffer")
   "bb" '(counsel-switch-buffer :which-key "find"))
+
+(gedeon/leader-keys
+    "w" '(:ignore t :which-key "window")
+    "wn" '(evil-window-vnew :which-key "new")
+    "wl" '(evil-window-right :which-key "right")
+    "wh" '(evil-window-left :which-key "left")
+    "wj" '(evil-window-down :which-key "down")
+    "wk" '(evil-window-up :which-key "up")
+    "ww" '(evil-window-next :which-key "next"))
+
+(gedeon/leader-keys
+    "n" '(:ignore t :which-key "notes")
+    "nf" '(org-roam-node-find :which-key "find")
+    "nc" '(org-roam-capture :which-key "capture"))
+
+(gedeon/leader-keys
+  "p" '(:ignore t :which-key "project")
+  "pp" '(counsel-projectile-switch-project :which-key "switch to project"))
 
 (gedeon/leader-keys
   "h" '(:ignore t :which-key "help")
@@ -151,7 +172,7 @@
 
 (gedeon/leader-keys
   "g" '(:ignore t :which-key "git")
-  "gg" '(magit-status-here :which-key "magit status"))
+  "gg" '(magit-status :which-key "magit status"))
 
 (gedeon/leader-keys
   "c"  '(:ignore t :which-key "code")
@@ -194,6 +215,15 @@
   (evil-set-initial-state 'messages-buffer-mode 'normal)
   (evil-set-initial-state 'dashboard-mode 'normal))
 
+
+(use-package evil-org
+  :ensure t
+  :after org
+  :hook (org-mode . (lambda () evil-org-mode))
+  :config
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys))
+
 (use-package evil-collection
   :after evil
   :config
@@ -210,12 +240,15 @@
   (org-indent-mode)
   (variable-pitch-mode 1)
   (visual-line-mode 1)
-  (gedeon/leader-keys
-    "m" '(:ignore t :which-key "org-mode")
-    "mt" '(org-todo :which-key "todo state")
-    "mI" '(org-id-get-create :which-key "ad id")
-    "mn" '(:ignore t :which-key "node")
-    "mni" '(org-roam-node-insert :which-key "insert link")))
+  (gedeon/local-leader-keys
+    "t" '(org-todo :which-key "todo state")
+    "I" '(org-id-get-create :which-key "ad id")
+    "n" '(:ignore t :which-key "node")
+    "ni" '(org-roam-node-insert :which-key "insert link")
+    "nf" '(org-roam-node-find :which-key "find node")
+    "a" '(org-attach :which-key "agenda")
+    "ns" '(org-narrow-to-subtree :which-key "narrow to subtree")
+    "nw" '(widen :whichkey "widen")))
 
 
 (use-package org
@@ -430,10 +463,9 @@
 (defun gedeon/rust-hook ()
   (setq indent-tabs-mode nil)
   (prettify-symbols-mode)
-  (gedeon/leader-keys
-   "m" '(:ignore t :which-key "rust-mode")
-   "mr" '(rust-run :which-key "run")
-   "mc" '(rust-compile :which-key "compile"))
+  (gedeon/local-leader-keys
+   "r" '(rust-run :which-key "run")
+   "c" '(rust-compile :which-key "compile"))
   )
 
 
@@ -467,20 +499,5 @@
 
 ;; evil-magit is now part of evil-collection
 
-(global-why-this-mode)
-
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(flycheck-swiftlint yasnippet why-this which-key visual-fill-column use-package typescript-mode rust-mode rainbow-delimiters org-superstar org-roam-ui org-noter-pdftools org-fancy-priorities org-download org-bullets ob-rust magit lsp-ui lsp-treemacs ivy-rich helpful general flycheck-eglot evil-escape evil-dvorak evil-collection doom-themes doom-modeline counsel-projectile company-box command-log-mode all-the-icons aas)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
