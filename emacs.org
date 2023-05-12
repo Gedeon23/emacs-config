@@ -686,6 +686,16 @@ With a prefix ARG, remove start location."
   
 #+end_src
 
+*** Flycheck
+
+#+begin_src emacs-lisp
+
+  (use-package flycheck
+    :ensure t
+    :init (global-flycheck-mode))
+  
+#+end_src
+
 
 *** Treemacs
 
@@ -769,7 +779,7 @@ automaticly activating snippets
 
 : Error (use-package): aas/:config: Condition must be either nil or a function Disable showing Disable logging
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
     (use-package aas
       :hook (LaTeX-mode . aas-activate-for-major-mode)
       :hook (org-mode . aas-activate-for-major-mode)

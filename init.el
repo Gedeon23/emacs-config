@@ -400,6 +400,10 @@
   :custom
   (lsp-ui-doc-position 'bottom))
 
+(use-package flycheck
+  :ensure t
+  :init (global-flycheck-mode))
+
 (use-package lsp-treemacs
 :after lsp)
 
@@ -438,28 +442,6 @@
           (gedeon/rust-hook))
 (setq rust-format-on-save t)
 
-(use-package aas
-  :hook (LaTeX-mode . aas-activate-for-major-mode)
-  :hook (org-mode . aas-activate-for-major-mode)
-  :config (aas-set-snippets 'latex-mode
-;; set condition!
-:cond #'texmathp ; expand only while in math
-"supp" "\\supp"
-"//" '(yas "\\frac{$1}{$2}$0")
-"On" "O(n)"
-"O1" "O(1)"
-"Olog" "O(\\log n)"
-"Olon" "O(n \\log n)"
-;; Use YAS/Tempel snippets with ease!
-"amin" '(yas "\\argmin_{$1}") ; YASnippet snippet shorthand form
-"amax" '(tempel "\\argmax_{" p "}") ; Tempel snippet shorthand form
-;; bind to functions!
-";ig" #'insert-register
-";call-sin"
-(lambda (angle) ; Get as fancy as you like
-  (interactive "sAngle: ")
-  (insert (format "%s" (sin (string-to-number angle)))))))
-
 (use-package yasnippet
 :config
 (yas-global-mode 1))
@@ -489,3 +471,16 @@
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(flycheck-swiftlint yasnippet why-this which-key visual-fill-column use-package typescript-mode rust-mode rainbow-delimiters org-superstar org-roam-ui org-noter-pdftools org-fancy-priorities org-download org-bullets ob-rust magit lsp-ui lsp-treemacs ivy-rich helpful general flycheck-eglot evil-escape evil-dvorak evil-collection doom-themes doom-modeline counsel-projectile company-box command-log-mode all-the-icons aas)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
