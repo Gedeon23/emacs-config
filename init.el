@@ -100,6 +100,15 @@
 	 :map minibuffer-local-map
 	 ("C-r" . 'counsel-minibuffer-history)))
 
+(require 'dashboard)
+(dashboard-setup-startup-hook)
+;; Or if you use use-package
+(use-package dashboard
+  :ensure t
+  :config
+  (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
+  (dashboard-setup-startup-hook))
+
 (use-package helpful
   :custom
   (counsel-describe-function-function #'helpful-callable)
@@ -156,6 +165,10 @@
     "ww" '(evil-window-next :which-key "next"))
 
 (gedeon/leader-keys
+    "o" '(:ignore t :which-key "open")
+    "oa" '(org-agenda :which-key "agenda"))
+
+(gedeon/leader-keys
     "n" '(:ignore t :which-key "notes")
     "nf" '(org-roam-node-find :which-key "find")
     "nc" '(org-roam-capture :which-key "capture"))
@@ -178,9 +191,7 @@
   "c"  '(:ignore t :which-key "code")
   "cs" '(lsp-treemacs-symbols :which-key "scope tree")
   "cl" '(:ignore t :which-key "lisp")
-  "cle" '(eval-buffer :which-key "eveluate lisp")
-  "cb" '(:ignore t :which-key "code block")
-  "cbe" '(org-babel-execute-src-block :which-key "execute"))
+  "cle" '(eval-buffer :which-key "eveluate lisp"))
 
 (defun gedeon/evil-hook ()
   (dolist (mode '(custom-mode
@@ -243,10 +254,15 @@
   (gedeon/local-leader-keys
     "t" '(org-todo :which-key "todo state")
     "I" '(org-id-get-create :which-key "ad id")
+    "a" '(org-attach :which-key "agenda")
+    "e" '(org-export-dispatch :which-key "export")
+
+    "b" '(:ignore t :which-key "babel")
+    "be" '(org-babel-execute-src-block :which-key "execute")
+
     "n" '(:ignore t :which-key "node")
     "ni" '(org-roam-node-insert :which-key "insert link")
     "nf" '(org-roam-node-find :which-key "find node")
-    "a" '(org-attach :which-key "agenda")
     "ns" '(org-narrow-to-subtree :which-key "narrow to subtree")
     "nw" '(widen :whichkey "widen")))
 
@@ -259,8 +275,7 @@
   (gedeon/org-font-setup)
 
   (setq org-agenda-files
-        '("~/org/todo.org"
-          "~/org/habits.org"))
+        '("~/org/todo.org"))
 
   (require 'org-habit)
   (add-to-list 'org-modules 'org-habit)
@@ -291,41 +306,7 @@
           ("publish" . ?P)
           ("batch" . ?b)
           ("note" . ?n)
-          ("idea" . ?i)))
-
-  (setq org-agenda-custom-commands
-        '(("d" "Dashboard"
-           ((agenda "" ((org-deadline-warning-days 7)))
-            (todo "NEXT"
-                  ((org-agenda-overriding-header "Next Tasks")))
-            (tags-todo "agenda/ACTIVE" ((org-agenda-overriding-header "Active Projects")))))
-
-
-          (setq org-capture-templates
-                `(("t" "Tasks / Projects")
-                  ("tt" "Task" entry (file+olp "~/org/todo.org" "Inbox")
-                   "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
-
-                  ("j" "Journal Entries")
-                  ("jj" "Journal" entry
-                   (file+olp+datetree "~/org/journal.org")
-                   "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
-                   ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
-                   :clock-in :clock-resume
-                   :empty-lines 1)
-                  ("jm" "Meeting" entry
-                   (file+olp+datetree "~/Projects/Code/emacs-from-scratch/OrgFiles/Journal.org")
-                   "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
-                   :clock-in :clock-resume
-                   :empty-lines 1)
-
-                  ("w" "Workflows")
-                  ("we" "Checking Email" entry (file+olp+datetree "~/Projects/Code/emacs-from-scratch/OrgFiles/Journal.org")
-                   "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)
-
-                  ("m" "Metrics Capture")
-                  ("mw" "Weight" table-line (file+headline "~/Projects/Code/emacs-from-scratch/OrgFiles/Metrics.org" "Weight")
-                   "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t))))))
+          ("idea" . ?i))))
 
 (defun gedeon/org-font-setup ()
   ;; Replace list hyphen with dot
