@@ -289,8 +289,8 @@
           (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
 
   (setq org-refile-targets
-        '(("Archive.org" :maxlevel . 1)
-          ("Tasks.org" :maxlevel . 1)))
+        '(("archive.org" :maxlevel . 1)
+          ("todo.org" :maxlevel . 1)))
 
   (advice-add 'org-refile :after 'org-save-all-org-buffers)
 
