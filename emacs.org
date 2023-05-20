@@ -180,6 +180,10 @@
     :ensure t
     :config
     (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
+    (setq dashboard-center-content t)
+    (setq dashboard-icon-type 'all-the-icons)
+    (setq dashoard-set-heading-icons t)
+    (setq dashboard-set-navigator t)
     (dashboard-setup-startup-hook))
 
 #+end_src
