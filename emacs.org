@@ -275,14 +275,15 @@
 
 #+begin_src emacs-lisp
 
-  (gedeon/leader-keys
-      "w" '(:ignore t :which-key "window")
-      "wn" '(evil-window-vnew :which-key "new")
-      "wl" '(evil-window-right :which-key "right")
-      "wh" '(evil-window-left :which-key "left")
-      "wj" '(evil-window-down :which-key "down")
-      "wk" '(evil-window-up :which-key "up")
-      "ww" '(evil-window-next :which-key "next"))
+    (gedeon/leader-keys
+        "w" '(:ignore t :which-key "window")
+        "wn" '(evil-window-vnew :which-key "new")
+        "wl" '(evil-window-right :which-key "right")
+        "wh" '(evil-window-left :which-key "left")
+        "wj" '(evil-window-down :which-key "down")
+        "wk" '(evil-window-up :which-key "up")
+        "ww" '(evil-window-next :which-key "next")
+        "wq" '(evil-window-delete :which-key "close"))
 
 #+end_src
 
@@ -295,7 +296,6 @@
       "oa" '(org-agenda :which-key "agenda"))
 
 #+end_src
-
 
 *** "N" i guess notes?
 
@@ -310,7 +310,6 @@ not really sure what I'm doing with this shortcut but I just want to have org ro
 
 #+end_src
 
-
 *** Project Keybindings
 
 #+begin_src emacs-lisp
@@ -320,7 +319,6 @@ not really sure what I'm doing with this shortcut but I just want to have org ro
     "pp" '(counsel-projectile-switch-project :which-key "switch to project"))
   
 #+end_src
-
 
 *** Help Keybindings
 

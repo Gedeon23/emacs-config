@@ -166,7 +166,8 @@
     "wh" '(evil-window-left :which-key "left")
     "wj" '(evil-window-down :which-key "down")
     "wk" '(evil-window-up :which-key "up")
-    "ww" '(evil-window-next :which-key "next"))
+    "ww" '(evil-window-next :which-key "next")
+    "wq" '(evil-window-delete :which-key "close"))
 
 (gedeon/leader-keys
     "o" '(:ignore t :which-key "open")
