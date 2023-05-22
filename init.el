@@ -133,9 +133,9 @@
   ("f" nil "finished" :exit t))
 
 (if (eq system-type 'darwin)
-    (setq mac-command-modifier 'meta)
+  (setq mac-command-modifier 'meta)
   (setq mac-control-modifier 'control)
-  )
+  (setq mac-option-modifier 'none))
 
 (use-package general
   :config
