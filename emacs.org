@@ -85,7 +85,7 @@
 ** Font Configuration
 
 #+begin_src emacs-lisp :tangle yes
-  (if (eq system-type 'darwin)
+  (when (eq system-type 'darwin)
       (set-face-attribute 'default nil :font "JetBrains Mono" :height 150)
     (set-face-attribute 'fixed-pitch nil :font "JetBrains Mono" :height 150)
     (set-face-attribute 'variable-pitch nil :font "Open Sans" :height 150)
@@ -93,10 +93,10 @@
 #+end_src      
 
 #+begin_src  emacs-lisp :tangle yes
-     (if (eq system-type 'gnu/linux)
-       (set-face-attribute 'default nil :font "JetBrainsMonoNL Nerd Font" :height 250)
-       (set-face-attribute 'fixed-pitch nil :font "JetBrainsMonoNL Nerd Font" :height 250)
-       (set-face-attribute 'variable-pitch nil :font "OpenSans" :height 250)
+     (when (eq system-type 'gnu/linux)
+       (set-face-attribute 'default nil :font "JetBrainsMonoNL Nerd Font" :height 120)
+       (set-face-attribute 'fixed-pitch nil :font "JetBrainsMonoNL Nerd Font" :height 120)
+       (set-face-attribute 'variable-pitch nil :font "OpenSans" :height 120)
        )
 #+end_src
 
@@ -261,7 +261,7 @@
 
 #+begin_src emacs-lisp
 
-  (if (eq system-type 'darwin)
+  (when (eq system-type 'darwin)
     (setq mac-command-modifier 'meta)
     (setq mac-control-modifier 'control)
     (setq mac-option-modifier 'none))
