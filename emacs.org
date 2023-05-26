@@ -43,6 +43,21 @@
 
 #+end_src
 
+#+begin_src emacs-lisp :tangle no
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 6))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+#+end_src
+
 
 * Basic UI Configuration
 
@@ -236,6 +251,7 @@
     :bind (
     :map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
     ("a"   . dirvish-quick-access)
+    ("q"   . dirvish-quit)
     ("f"   . dirvish-file-info-menu)
     ("y"   . dirvish-yank-menu)
     ("N"   . dirvish-narrow)
@@ -272,16 +288,18 @@
 ** General Keybindings
 
 #+begin_src emacs-lisp
-    (use-package general
-      :config
-      (general-create-definer gedeon/leader-keys
-        :keymaps '(normal insert visual emacs)
-        :prefix "SPC"
-        :global-prefix "C-SPC")
-      (general-create-definer gedeon/local-leader-keys
+  (use-package general
+    :config
+    (general-create-definer gedeon/keys
+      :keymaps '(normal insert visual emacs))
+    (general-create-definer gedeon/leader-keys
       :keymaps '(normal insert visual emacs)
-      :prefix "SPC m"
-      :global-prefix "C-SPC m"))
+      :prefix "SPC"
+      :global-prefix "C-SPC")
+    (general-create-definer gedeon/local-leader-keys
+    :keymaps '(normal insert visual emacs)
+    :prefix "SPC m"
+    :global-prefix "C-SPC m"))
 
   #+end_src
 
@@ -580,10 +598,10 @@ not really sure what I'm doing with this shortcut but I just want to have org ro
             ("publish" . ?P)
             ("batch" . ?b)
             ("note" . ?n)
+            ("catchup" . ?c)
             ("idea" . ?i))))
 
 #+end_src
-
 
 
 ** Some more styling
@@ -748,6 +766,15 @@ With a prefix ARG, remove start location."
 
 
 
+** Org Excalidraw
+
+#+begin_src emacs-lisp :tangle no
+(use-package org-excalidraw
+  :straight (:type git :host github :repo "wdavew/org-excalidraw")
+)
+#+end_src
+
+
 * Development
 
 ** LSP
@@ -883,6 +910,44 @@ With a prefix ARG, remove start location."
 #+end_src
 
 
+
+
+*** TOML
+
+#+begin_src emacs-lisp
+  
+  (use-package toml-mode)
+
+#+end_src
+
+
+*** Javascript
+
+#+begin_src emacs-lisp
+
+  (use-package rjsx-mode)
+  
+#+end_src
+
+**** svelte
+
+#+begin_src emacs-lisp
+
+(use-package svelte-mode)
+  
+#+end_src
+
+
+*** HTML
+
+#+begin_src emacs-lisp
+
+  (use-package emmet-mode
+  :config
+  (gedeon/keys
+   "C-e" '(emmet-expand-line :which-key "emmet expand")))
+
+#+end_src
 
 
 ** Snippets
