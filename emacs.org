@@ -832,7 +832,7 @@ With a prefix ARG, remove start location."
 
 *** Treemacs
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 
   (use-package lsp-treemacs
   :after lsp)
@@ -895,6 +895,11 @@ With a prefix ARG, remove start location."
 
 #+end_src
 
+#+begin_src emacs-lisp
+  (use-package flycheck-rust
+  :after (rust-mode)
+  :hook (flycheck-mode . flycheck-rust-setup))
+#+end_src
 
 
 
