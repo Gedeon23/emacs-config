@@ -758,6 +758,15 @@ With a prefix ARG, remove start location."
 #+end_src
 
 
+** Org recoll
+
+#+begin_src emacs-lisp
+(load "~/.config/emacs/packages/org-recoll.el")
+(global-set-key (kbd "C-c g") 'org-recoll-search)
+(global-set-key (kbd "C-c u") 'org-recoll-update-index)
+#+end_src
+
+
 ** Better Media integration
 
 *** Org Download
