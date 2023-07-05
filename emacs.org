@@ -100,14 +100,12 @@
 ** Font Configuration
 
 #+begin_src emacs-lisp :tangle yes
-  (when (eq system-type 'darwin)
       (set-face-attribute 'default nil :font "JetBrains Mono" :height 150)
     (set-face-attribute 'fixed-pitch nil :font "JetBrains Mono" :height 150)
     (set-face-attribute 'variable-pitch nil :font "Open Sans" :height 150)
-    )
 #+end_src      
 
-#+begin_src  emacs-lisp :tangle yes
+#+begin_src  emacs-lisp :tangle no
      (when (eq system-type 'gnu/linux)
        (set-face-attribute 'default nil :font "JetBrainsMonoNL Nerd Font" :height 120)
        (set-face-attribute 'fixed-pitch nil :font "JetBrainsMonoNL Nerd Font" :height 120)
