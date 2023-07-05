@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: todo states
+# key: todates
+# --
+#+TODO: TODO(t) WAIT(w@/!) | DONE(d!) CANCELED(c@)
