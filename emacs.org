@@ -970,6 +970,55 @@ With a prefix ARG, remove start location."
 #+end_src
 
 
+*** HLEDGER
+
+#+begin_src emacs-lisp
+
+  ;;; Basic configuration
+  (require 'hledger-mode)
+  (add-hook 'hledger-mode-hook 'gedeon/hledger-hook)
+
+  (defun gedeon/hledger-hook ()
+    (setq hledger-commodity-tab-alternative "EUR")
+    (font-lock-add-keywords
+     nil
+     '(("~ monthly" . font-lock-constant-face))))
+
+
+  ;; To open files with .journal extension in hledger-mode
+  (add-to-list 'auto-mode-alist '("\\.journal\\'" . hledger-mode))
+
+  ;; Provide the path to you journal file.
+  ;; The default location is too opinionated.
+  (setq hledger-jfile "~/Documents/finance/.hledger.journal")
+
+
+  ;;; Auto-completion for account names
+  ;; For company-mode users,
+  (add-to-list 'company-backends 'hledger-company)
+
+#+end_src
+
+
+*** Cook Lang
+
+#+begin_src emacs-lisp
+  (load "~/.config/emacs/packages/cook-mode.el")
+
+  (defun gedeon/cook-mode-setup ()
+    (variable-pitch-mode 1))
+
+  (add-hook 'cook-mode-hook 'gedeon/cook-mode-setup)
+#+end_src
+
+*** plantuml
+
+#+begin_src emacs-lisp
+(setq org-plantuml-jar-path (expand-file-name "/home/you/path/to/plantuml.jar"))
+(add-to-list 'org-src-lang-modes '("plantuml" . plantuml))
+#+end_src
+
+
 ** Snippets
 *** AAS
 
