@@ -668,6 +668,7 @@ not really sure what I'm doing with this shortcut but I just want to have org ro
    'org-babel-load-languages
    '((emacs-lisp . t)
      (rust . t)
+     (plantuml . t)
      (python . t)))
 
   (setq org-confirm-babel-evaluate nil)
