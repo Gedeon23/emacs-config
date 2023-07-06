@@ -561,7 +561,10 @@ not really sure what I'm doing with this shortcut but I just want to have org ro
       "ni" '(org-roam-node-insert :which-key "insert link")
       "nf" '(org-roam-node-find :which-key "find node")
       "ns" '(org-narrow-to-subtree :which-key "narrow to subtree")
-      "nw" '(widen :whichkey "widen")))
+      "nw" '(widen :whichkey "widen")
+
+      "s" '(:ignore t :which-key "search")
+      "sr" '(org-recoll-search :which-key "recoll")))
 
 
   (use-package org
