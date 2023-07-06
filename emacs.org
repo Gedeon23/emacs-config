@@ -1017,7 +1017,7 @@ With a prefix ARG, remove start location."
 *** plantuml
 
 #+begin_src emacs-lisp
-(setq org-plantuml-jar-path (expand-file-name "/home/you/path/to/plantuml.jar"))
+(setq org-plantuml-jar-path (expand-file-name "~/.local/bin/plantuml.jar"))
 (add-to-list 'org-src-lang-modes '("plantuml" . plantuml))
 #+end_src
 
