@@ -132,13 +132,50 @@
   ("k" text-scale-decrease "out")
   ("f" nil "finished" :exit t))
 
-(if (eq system-type 'darwin)
+(use-package dirvish
+  :config
+  (dirvish-override-dired-mode)
+  (setq dirvish-use-header-line 'global)    ; make header line span all panes
+
+  (setq dirvish-header-line-height '(25 . 35))
+  (setq dirvish-mode-line-height 25) ; shorthand for '(25 . 25)
+
+  (setq dirvish-header-line-format
+        '(:left (path) :right (free-space))
+        dirvish-mode-line-format
+        '(:left (sort file-time " " file-size symlink) :right (omit yank index)))
+  (setq dirvish-attributes
+        '(vc-state subtree-state all-the-icons collapse git-msg file-time file-size))
+  :bind (
+  :map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
+  ("a"   . dirvish-quick-access)
+  ("q"   . dirvish-quit)
+  ("f"   . dirvish-file-info-menu)
+  ("y"   . dirvish-yank-menu)
+  ("N"   . dirvish-narrow)
+  ("^"   . dirvish-history-last)
+  ("h"   . dirvish-history-jump) ; remapped `describe-mode'
+  ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
+  ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
+  ("TAB" . dirvish-subtree-toggle)
+  ("M-f" . dirvish-history-go-forward)
+  ("M-b" . dirvish-history-go-backward)
+  ("M-l" . dirvish-ls-switches-menu)
+  ("M-m" . dirvish-mark-menu)
+  ("M-t" . dirvish-layout-toggle)
+  ("M-s" . dirvish-setup-menu)
+  ("M-e" . dirvish-emerge-menu)
+  ("M-j" . dirvish-fd-jump)))
+
+(when (eq system-type 'darwin)
   (setq mac-command-modifier 'meta)
   (setq mac-control-modifier 'control)
   (setq mac-option-modifier 'none))
 
 (use-package general
   :config
+  (general-create-definer gedeon/keys
+    :keymaps '(normal insert visual emacs))
   (general-create-definer gedeon/leader-keys
     :keymaps '(normal insert visual emacs)
     :prefix "SPC"
@@ -203,6 +240,9 @@
   "cl" '(:ignore t :which-key "lisp")
   "cle" '(eval-buffer :which-key "eveluate lisp"))
 
+(gedeon/leader-keys
+  "." '(dirvish :which-key "dirvish"))
+
 (defun gedeon/evil-hook ()
   (dolist (mode '(custom-mode
                   eshell-mode
@@ -228,6 +268,7 @@
   (evil-mode 1)
   (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
   (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
+  (define-key evil-motion-state-map (kbd "RET") nil)
 
   ;;use visuel line motions even outside of visual line mode buffers
   (evil-global-set-key 'motion "j" 'evil-next-visual-line)
@@ -287,6 +328,12 @@
   (org-indent-mode)
   (variable-pitch-mode 1)
   (visual-line-mode 1)
+  (setq org-capture-templates `(
+                                ("p" "Protocol" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
+                                 "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?")
+                                ("L" "Protocol Link" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
+                                 "* %? [[%:link][%:description]] \nCaptured On: %U")
+                                ))
   (gedeon/local-leader-keys
     "t" '(org-todo :which-key "todo state")
     "I" '(org-id-get-create :which-key "ad id")
@@ -300,7 +347,10 @@
     "ni" '(org-roam-node-insert :which-key "insert link")
     "nf" '(org-roam-node-find :which-key "find node")
     "ns" '(org-narrow-to-subtree :which-key "narrow to subtree")
-    "nw" '(widen :whichkey "widen")))
+    "nw" '(widen :whichkey "widen")
+
+    "s" '(:ignore t :which-key "search")
+    "sr" '(org-recoll-search :which-key "recoll")))
 
 
 (use-package org
@@ -342,6 +392,7 @@
           ("publish" . ?P)
           ("batch" . ?b)
           ("note" . ?n)
+          ("catchup" . ?c)
           ("idea" . ?i))))
 
 (defun gedeon/org-mode-visual-fill ()
@@ -376,6 +427,7 @@
  'org-babel-load-languages
  '((emacs-lisp . t)
    (rust . t)
+   (plantuml . t)
    (python . t)))
 
 (setq org-confirm-babel-evaluate nil)
@@ -405,6 +457,10 @@
   ;; If using org-roam-protocol
   (require 'org-roam-protocol))
 
+(load "~/.config/emacs/packages/org-recoll.el")
+(global-set-key (kbd "C-c g") 'org-recoll-search)
+(global-set-key (kbd "C-c u") 'org-recoll-update-index)
+
 (require 'org-download)
 
 (add-hook 'dired-mode-hook 'org-download-enable)
@@ -427,9 +483,6 @@
 (use-package flycheck
   :ensure t
   :init (global-flycheck-mode))
-
-(use-package lsp-treemacs
-:after lsp)
 
 (use-package typescript-mode
   :mode "\\.ts\\'"
@@ -465,11 +518,59 @@
           (gedeon/rust-hook))
 (setq rust-format-on-save t)
 
+(use-package flycheck-rust
+:after (rust-mode)
+:hook (flycheck-mode . flycheck-rust-setup))
+
 (use-package ccls
 :hook ((c-mode c++-mode objc-mode cuda-mode) .
        (lambda () (require 'ccls) (lsp)))
 :config
 (setq ccls-executable "/usr/bin/ccls"))
+
+(use-package toml-mode)
+
+(use-package rjsx-mode)
+
+(use-package svelte-mode)
+
+(use-package emmet-mode
+:config
+(gedeon/keys
+ "C-e" '(emmet-expand-line :which-key "emmet expand")))
+
+;;; Basic configuration
+(require 'hledger-mode)
+(add-hook 'hledger-mode-hook 'gedeon/hledger-hook)
+
+(defun gedeon/hledger-hook ()
+  (setq hledger-commodity-tab-alternative "EUR")
+  (font-lock-add-keywords
+   nil
+   '(("~ monthly" . font-lock-constant-face))))
+
+
+;; To open files with .journal extension in hledger-mode
+(add-to-list 'auto-mode-alist '("\\.journal\\'" . hledger-mode))
+
+;; Provide the path to you journal file.
+;; The default location is too opinionated.
+(setq hledger-jfile "~/Documents/finance/.hledger.journal")
+
+
+;;; Auto-completion for account names
+;; For company-mode users,
+(add-to-list 'company-backends 'hledger-company)
+
+(load "~/.config/emacs/packages/cook-mode.el")
+
+(defun gedeon/cook-mode-setup ()
+  (variable-pitch-mode 1))
+
+(add-hook 'cook-mode-hook 'gedeon/cook-mode-setup)
+
+(setq org-plantuml-jar-path (expand-file-name "~/.local/bin/plantuml.jar"))
+(add-to-list 'org-src-lang-modes '("plantuml" . plantuml))
 
 (use-package yasnippet
 :config
