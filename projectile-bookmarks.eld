@@ -1,1 +1,1 @@
-("~/.config/emacs/" "~/org/" "~/dev/rust_traits/")
+("~/.config/emacs/" "~/org/")
