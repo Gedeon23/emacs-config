@@ -569,7 +569,11 @@
 
 (add-hook 'cook-mode-hook 'gedeon/cook-mode-setup)
 
+<<<<<<< Updated upstream
 (setq org-plantuml-jar-path (expand-file-name "~/.local/bin/plantuml.jar"))
+=======
+(setq org-plantuml-jar-path (expand-file-name "/home/you/path/to/plantuml.jar"))
+>>>>>>> Stashed changes
 (add-to-list 'org-src-lang-modes '("plantuml" . plantuml))
 
 (use-package yasnippet
