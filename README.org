@@ -1,0 +1,5 @@
+#+title: My Emacs Config
+#+author: gedeon
+
+[[./emacs.org][details
+]]

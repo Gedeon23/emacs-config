@@ -2,6 +2,9 @@
 #+author: Gedeon
 #+Property: header-args:emacs-lisp :tangle ./init.el
 
+this code block just returns true if on macos
+not used right now though
+
 #+name: is-macos
 #+begin_src emacs-lisp :tangle no
 (eq system-type 'darwin)
