@@ -1,0 +1,7 @@
+# key: <q
+# name: quote block
+# --
+#+begin_quote
+$1
+#+end_quote
+$0
