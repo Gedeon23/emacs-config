@@ -350,8 +350,10 @@
     "nw" '(widen :whichkey "widen")
 
     "s" '(:ignore t :which-key "search")
-    "sr" '(org-recoll-search :which-key "recoll")))
-
+    "sr" '(org-recoll-search :which-key "recoll")
+    "c" '(:ignore t :which-key "clock")
+    "ci" '(org-clock-in :which-key "clock in")
+    "co" '(org-clock-out :which-key "clock out")))
 
 (use-package org
   :hook
@@ -361,7 +363,7 @@
   (gedeon/org-font-setup)
 
   (setq org-agenda-files
-        '("~/org/todo.org"))
+        '("~/Dropbox/todo.org"))
 
   (require 'org-habit)
   (add-to-list 'org-modules 'org-habit)
@@ -505,18 +507,18 @@
   :hook (company-mode . company-box-mode))
 
 (defun gedeon/rust-hook ()
-  (setq indent-tabs-mode nil)
-  (prettify-symbols-mode)
-  (gedeon/local-leader-keys
-   "r" '(rust-run :which-key "run")
-   "c" '(rust-compile :which-key "compile"))
-  )
+    (setq indent-tabs-mode nil)
+    (prettify-symbols-mode)
+;;    (gedeon/local-leader-keys
+;;    "r" '(rust-run :which-key "run")
+;;     "c" '(rust-compile :which-key "compile"))
+    )
 
 
-(require 'rust-mode)
-(add-hook 'rust-mode-hook
-          (gedeon/rust-hook))
-(setq rust-format-on-save t)
+  (require 'rust-mode)
+  (add-hook 'rust-mode-hook
+            (gedeon/rust-hook))
+  (setq rust-format-on-save t)
 
 (use-package flycheck-rust
 :after (rust-mode)
@@ -572,6 +574,9 @@
 (setq org-plantuml-jar-path (expand-file-name "~/.local/bin/plantuml.jar"))
 (add-to-list 'org-src-lang-modes '("plantuml" . plantuml))
 
+(require 'lsp-java)
+(add-hook 'java-mode-hook #'lsp)
+
 (use-package yasnippet
 :config
 (yas-global-mode 1))
@@ -599,3 +604,16 @@
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("60ada0ff6b91687f1a04cc17ad04119e59a7542644c7c59fc135909499400ab8" "7e068da4ba88162324d9773ec066d93c447c76e9f4ae711ddd0c5d3863489c52" default)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
