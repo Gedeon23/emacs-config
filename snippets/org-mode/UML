@@ -1,0 +1,13 @@
+# key: <uml
+# name: UML
+# --
+#+begin_src plantuml
+@startuml
+!theme spacelab
+skinparam backgroundcolor transparent
+
+$1
+
+@enduml
+#+end_src
+$0
