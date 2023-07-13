@@ -785,11 +785,9 @@ With a prefix ARG, remove start location."
 
 #+begin_src emacs-lisp
   (require 'org-download)
-
+  (setq-default org-download-image-dir "~/org/images")
   (add-hook 'dired-mode-hook 'org-download-enable)
 #+end_src
-
-
 
 
 
