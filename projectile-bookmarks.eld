@@ -1,2 +1,1 @@
-("~/.config/emacs/" "~/org/" "~/Documents/cook/" "~/dev/yoweme/" "~/dev/rust_yew/")
-("~/.config/emacs/" "~/org/" "~/dev/rust_traits/")
+("~/.config/emacs/" "~/org/" "~/dev/java/Aktien_und_Investoren/" "~/dev/java/Aktien_und_Investoren Loesung/" "~/Documents/cook/" "~/dev/yoweme/" "~/dev/rust_yew/")
