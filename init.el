@@ -329,7 +329,7 @@
   (org-indent-mode)
   (variable-pitch-mode 1)
   (visual-line-mode 1)
-  (setq org-image-actual-width 1000)
+  (setq org-image-actual-width '(500 750 1000))
   (setq org-capture-templates `(
                                 ("p" "Protocol" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
                                  "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?")
