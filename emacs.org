@@ -370,9 +370,10 @@ not really sure what I'm doing with this shortcut but I just want to have org ro
 #+begin_src emacs-lisp
 
   (gedeon/leader-keys
-      "n" '(:ignore t :which-key "notes")
-      "nf" '(org-roam-node-find :which-key "find")
-      "nc" '(org-roam-capture :which-key "capture"))
+    "n" '(:ignore t :which-key "notes")
+    "nf" '(org-roam-node-find :which-key "find")
+    "nc" '(org-roam-capture :which-key "capture")
+    "nb" '(org-roam-buffer-toggle :which-key "backlinks"))
 
 #+end_src
 
