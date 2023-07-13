@@ -216,9 +216,10 @@
     "oa" '(org-agenda :which-key "agenda"))
 
 (gedeon/leader-keys
-    "n" '(:ignore t :which-key "notes")
-    "nf" '(org-roam-node-find :which-key "find")
-    "nc" '(org-roam-capture :which-key "capture"))
+  "n" '(:ignore t :which-key "notes")
+  "nf" '(org-roam-node-find :which-key "find")
+  "nc" '(org-roam-capture :which-key "capture")
+  "nb" '(org-roam-buffer-toggle :which-key "backlinks"))
 
 (gedeon/leader-keys
   "p" '(:ignore t :which-key "project")
@@ -328,6 +329,7 @@
   (org-indent-mode)
   (variable-pitch-mode 1)
   (visual-line-mode 1)
+  (setq org-image-actual-width 1000)
   (setq org-capture-templates `(
                                 ("p" "Protocol" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
                                  "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?")
@@ -464,7 +466,7 @@
 (global-set-key (kbd "C-c u") 'org-recoll-update-index)
 
 (require 'org-download)
-
+(setq-default org-download-image-dir "~/org/images")
 (add-hook 'dired-mode-hook 'org-download-enable)
 
 (use-package lsp-mode
@@ -604,16 +606,3 @@
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   '("60ada0ff6b91687f1a04cc17ad04119e59a7542644c7c59fc135909499400ab8" "7e068da4ba88162324d9773ec066d93c447c76e9f4ae711ddd0c5d3863489c52" default)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
