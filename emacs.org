@@ -542,78 +542,79 @@ not really sure what I'm doing with this shortcut but I just want to have org ro
 ** Basic Config
 
 #+begin_src emacs-lisp
-      (defun gedeon/org-mode-setup ()
-        (org-indent-mode)
-        (variable-pitch-mode 1)
-        (visual-line-mode 1)
-        (setq org-capture-templates `(
-                                      ("p" "Protocol" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
-                                       "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?")
-                                      ("L" "Protocol Link" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
-                                       "* %? [[%:link][%:description]] \nCaptured On: %U")
-                                      ))
-        (gedeon/local-leader-keys
-          "t" '(org-todo :which-key "todo state")
-          "I" '(org-id-get-create :which-key "ad id")
-          "a" '(org-attach :which-key "agenda")
-          "e" '(org-export-dispatch :which-key "export")
+  (defun gedeon/org-mode-setup ()
+    (org-indent-mode)
+    (variable-pitch-mode 1)
+    (visual-line-mode 1)
+    (setq org-image-actual-width 1000)
+    (setq org-capture-templates `(
+                                  ("p" "Protocol" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
+                                   "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n%?")
+                                  ("L" "Protocol Link" entry (file+headline ,(concat org-directory "notes.org") "Inbox")
+                                   "* %? [[%:link][%:description]] \nCaptured On: %U")
+                                  ))
+    (gedeon/local-leader-keys
+      "t" '(org-todo :which-key "todo state")
+      "I" '(org-id-get-create :which-key "ad id")
+      "a" '(org-attach :which-key "agenda")
+      "e" '(org-export-dispatch :which-key "export")
 
-          "b" '(:ignore t :which-key "babel")
-          "be" '(org-babel-execute-src-block :which-key "execute")
+      "b" '(:ignore t :which-key "babel")
+      "be" '(org-babel-execute-src-block :which-key "execute")
 
-          "n" '(:ignore t :which-key "node")
-          "ni" '(org-roam-node-insert :which-key "insert link")
-          "nf" '(org-roam-node-find :which-key "find node")
-          "ns" '(org-narrow-to-subtree :which-key "narrow to subtree")
-          "nw" '(widen :whichkey "widen")
+      "n" '(:ignore t :which-key "node")
+      "ni" '(org-roam-node-insert :which-key "insert link")
+      "nf" '(org-roam-node-find :which-key "find node")
+      "ns" '(org-narrow-to-subtree :which-key "narrow to subtree")
+      "nw" '(widen :whichkey "widen")
 
-          "s" '(:ignore t :which-key "search")
-          "sr" '(org-recoll-search :which-key "recoll")
-          "c" '(:ignore t :which-key "clock")
-          "ci" '(org-clock-in :which-key "clock in")
-          "co" '(org-clock-out :which-key "clock out")))
+      "s" '(:ignore t :which-key "search")
+      "sr" '(org-recoll-search :which-key "recoll")
+      "c" '(:ignore t :which-key "clock")
+      "ci" '(org-clock-in :which-key "clock in")
+      "co" '(org-clock-out :which-key "clock out")))
 
-      (use-package org
-        :hook
-        (org-mode . gedeon/org-mode-setup)
-        :config
-        (setq org-ellipsis " ▾")
-        (gedeon/org-font-setup)
+  (use-package org
+    :hook
+    (org-mode . gedeon/org-mode-setup)
+    :config
+    (setq org-ellipsis " ▾")
+    (gedeon/org-font-setup)
 
-        (setq org-agenda-files
-              '("~/Dropbox/todo.org"))
+    (setq org-agenda-files
+          '("~/Dropbox/todo.org"))
 
-        (require 'org-habit)
-        (add-to-list 'org-modules 'org-habit)
-        (setq org-habit-graph-column 60)
+    (require 'org-habit)
+    (add-to-list 'org-modules 'org-habit)
+    (setq org-habit-graph-column 60)
 
-        (define-key org-agenda-mode-map "j" 'evil-next-line)
-        (define-key org-agenda-mode-map "k" 'evil-previous-line)
+    (define-key org-agenda-mode-map "j" 'evil-next-line)
+    (define-key org-agenda-mode-map "k" 'evil-previous-line)
 
-        (setq org-todo-keywords
-              '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
-                (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
+    (setq org-todo-keywords
+          '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
+            (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
 
-        (setq org-refile-targets
-              '(("archive.org" :maxlevel . 1)
-                ("todo.org" :maxlevel . 1)))
+    (setq org-refile-targets
+          '(("archive.org" :maxlevel . 1)
+            ("todo.org" :maxlevel . 1)))
 
-        (advice-add 'org-refile :after 'org-save-all-org-buffers)
+    (advice-add 'org-refile :after 'org-save-all-org-buffers)
 
-        (setq org-tag-alist
-              '((:startgroup)
-                                              ; Put mutually exclusive tags here
-                (:endgroup)
-                ("@errand" . ?E)
-                ("@work" . ?W)
-                ("@home" . ?H)
-                ("agenda" . ?a)
-                ("planning" . ?p)
-                ("publish" . ?P)
-                ("batch" . ?b)
-                ("note" . ?n)
-                ("catchup" . ?c)
-                ("idea" . ?i))))
+    (setq org-tag-alist
+          '((:startgroup)
+                                          ; Put mutually exclusive tags here
+            (:endgroup)
+            ("@errand" . ?E)
+            ("@work" . ?W)
+            ("@home" . ?H)
+            ("agenda" . ?a)
+            ("planning" . ?p)
+            ("publish" . ?P)
+            ("batch" . ?b)
+            ("note" . ?n)
+            ("catchup" . ?c)
+            ("idea" . ?i))))
 
 #+end_src
 
