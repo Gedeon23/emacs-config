@@ -167,6 +167,8 @@
   ("M-e" . dirvish-emerge-menu)
   ("M-j" . dirvish-fd-jump)))
 
+(use-package deadgrep)
+
 (when (eq system-type 'darwin)
   (setq mac-command-modifier 'meta)
   (setq mac-control-modifier 'control)
@@ -212,8 +214,9 @@
     "wq" '(evil-window-delete :which-key "close"))
 
 (gedeon/leader-keys
-    "o" '(:ignore t :which-key "open")
-    "oa" '(org-agenda :which-key "agenda"))
+  "o" '(:ignore t :which-key "open")
+  "oa" '(org-agenda :which-key "agenda")
+  "om" '(mastodon :which-key "mastodon"))
 
 (gedeon/leader-keys
   "n" '(:ignore t :which-key "notes")
@@ -243,6 +246,12 @@
 
 (gedeon/leader-keys
   "." '(dirvish :which-key "dirvish"))
+
+(gedeon/leader-keys
+"s" '(:ignore t :which-key "search")
+"sd" '(:ignore t :which-key "deadgrep")
+"sdq" '(deadgrep :which-key "query")
+"sde" '(deadgrep-edit-mode :which-key "edit mode"))
 
 (defun gedeon/evil-hook ()
   (dolist (mode '(custom-mode
@@ -606,3 +615,9 @@
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
+
+(use-package mastodon
+  :ensure t
+  :config
+  (setq mastodon-instance-url "https://fosstodon.org"
+        mastodon-active-user "gede"))

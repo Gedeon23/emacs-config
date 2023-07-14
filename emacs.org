@@ -272,6 +272,13 @@ not used right now though
 #+end_src
 
 
+** Deadgrep
+
+#+begin_src emacs-lisp
+  (use-package deadgrep)
+#+end_src
+
+
 * Keybinding Configuration
 
 ** MacOS modifiers
@@ -358,8 +365,9 @@ not used right now though
 #+begin_src emacs-lisp
 
   (gedeon/leader-keys
-      "o" '(:ignore t :which-key "open")
-      "oa" '(org-agenda :which-key "agenda"))
+    "o" '(:ignore t :which-key "open")
+    "oa" '(org-agenda :which-key "agenda")
+    "om" '(mastodon :which-key "mastodon"))
 
 #+end_src
 
@@ -429,6 +437,15 @@ not really sure what I'm doing with this shortcut but I just want to have org ro
 
 #+RESULTS:
 
+*** search
+
+#+begin_src emacs-lisp
+  (gedeon/leader-keys
+  "s" '(:ignore t :which-key "search")
+  "sd" '(:ignore t :which-key "deadgrep")
+  "sdq" '(deadgrep :which-key "query")
+  "sde" '(deadgrep-edit-mode :which-key "edit mode"))
+#+end_src
 
 
 ** EVIL
@@ -1138,4 +1155,18 @@ shows git blame on current line
     :hook (prog-mode . rainbow-delimiters-mode))
   
 #+end_src
+
+
+* Applications
+
+** Mastodon
+
+#+begin_src emacs-lisp
+  (use-package mastodon
+    :ensure t
+    :config
+    (setq mastodon-instance-url "https://fosstodon.org"
+          mastodon-active-user "gede"))
+#+end_src
+
 
