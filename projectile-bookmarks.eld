@@ -1,1 +1,0 @@
-("~/.config/emacs/" "~/org/" "~/dev/java/Aktien_und_Investoren/" "~/dev/java/Aktien_und_Investoren Loesung/" "~/Documents/cook/" "~/dev/yoweme/" "~/dev/rust_yew/")
